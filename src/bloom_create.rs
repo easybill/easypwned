@@ -31,6 +31,11 @@ pub fn bloom_create() -> Result<(), Error> {
 
     for raw_line in reader.lines() {
         let line = raw_line?;
+
+        if line.trim() == "" {
+            continue;
+        }
+
         let hash = match line.split_once(":") {
             Some((hash, often)) => hash,
             _ => return Err(anyhow!("invalid hash pattern"))
@@ -41,7 +46,7 @@ pub fn bloom_create() -> Result<(), Error> {
 
     let mut bloomfile = File::open("easypwned.bloom")?;
     bloomfile.write_all(bloom.bitmap().as_ref())?;
-    
+
     println!("done!");
 
     Ok(())
