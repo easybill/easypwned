@@ -1,17 +1,15 @@
 use crate::bloom_create::{bloom_create, bloom_get, EasyBloom};
 use axum::extract::{Extension, Path};
 use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
+    routing::{get},
     Json, Router,
 };
-use bloomfilter::Bloom;
-use serde::{Deserialize, Serialize};
+
+
 use serde_json::{json, Value};
 use sha1::{Digest, Sha1};
 use std::net::SocketAddr;
-use std::path::PathBuf;
+
 use std::sync::Arc;
 use structopt::StructOpt;
 
