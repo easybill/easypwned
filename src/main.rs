@@ -27,6 +27,9 @@ pub struct Opt {
     /// Files to process
     #[structopt(long = "create_bloom_file_from_file")]
     create_bloom_file_from_file: Option<String>,
+
+    #[structopt(long = "create_bloom_file_from_file", default_value = "0.0.0.0:3342")]
+    bind: String,
 }
 
 #[tokio::main]
@@ -69,21 +72,16 @@ async fn main() {
         );
     }
 
-    // initialize tracing
     tracing_subscriber::fmt::init();
 
     let bloom_ext = Arc::new(bloom);
 
-    // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `root`
         .route("/hash/:hash", get(handler_hash))
         .route("/pw/:pw", get(handler_pw))
         .layer(Extension(bloom_ext));
 
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3342));
+    let addr = opt.bind.parse::<SocketAddr>().expect("");
     println!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
@@ -91,7 +89,6 @@ async fn main() {
         .unwrap();
 }
 
-// basic handler that responds with a static string
 async fn handler_hash(
     Extension(bloom): Extension<Arc<EasyBloom>>,
     Path(hash): Path<String>,
