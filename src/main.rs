@@ -1,22 +1,21 @@
 use crate::bloom_create::{bloom_create, bloom_get, EasyBloom};
+use axum::extract::{Extension, Path};
 use axum::{
-    routing::{get, post},
     http::StatusCode,
     response::IntoResponse,
+    routing::{get, post},
     Json, Router,
 };
+use bloomfilter::Bloom;
 use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use sha1::{Digest, Sha1};
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
-use axum::extract::{Extension, Path};
-use bloomfilter::Bloom;
-use serde_json::{json, Value};
-use sha1::{Sha1, Digest};
 use structopt::StructOpt;
 
 pub mod bloom_create;
-
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
@@ -32,20 +31,19 @@ pub struct Opt {
 
 #[tokio::main]
 async fn main() {
-
-    let opt : Opt = Opt::from_args();
+    let opt: Opt = Opt::from_args();
 
     println!("{:?}", opt);
 
     match &opt.create_bloom_file_from_file {
         Some(password_file) => match bloom_create(&opt.bloomfile, password_file.as_str()) {
-            Ok(b) => {},
+            Ok(b) => {}
             Err(e) => {
                 println!("could not create bloom: {}", e);
                 panic!();
-            },
+            }
         },
-        None => {},
+        None => {}
     };
 
     let bloom = match bloom_get(&opt.bloomfile) {
@@ -60,11 +58,15 @@ async fn main() {
 
     let checks = vec![
         "0000000CAEF405439D57847A8657218C618160B2",
-        "0000000CAEF405439D57847A8657218C618160BX"
+        "0000000CAEF405439D57847A8657218C618160BX",
     ];
 
     for check in checks {
-        println!("check: {} -> {:?}", check, bloom.check(&check.as_bytes().to_vec()));
+        println!(
+            "check: {} -> {:?}",
+            check,
+            bloom.check(&check.as_bytes().to_vec())
+        );
     }
 
     // initialize tracing
@@ -90,7 +92,10 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn handler_hash(Extension(bloom): Extension<Arc<EasyBloom>>, Path(hash): Path<String>) -> Json<Value> {
+async fn handler_hash(
+    Extension(bloom): Extension<Arc<EasyBloom>>,
+    Path(hash): Path<String>,
+) -> Json<Value> {
     let check = bloom.check(&hash.as_bytes().to_vec());
     Json(json!({
         "hash": hash,
@@ -98,7 +103,10 @@ async fn handler_hash(Extension(bloom): Extension<Arc<EasyBloom>>, Path(hash): P
     }))
 }
 
-async fn handler_pw(Extension(bloom): Extension<Arc<EasyBloom>>, Path(pw): Path<String>) -> Json<Value> {
+async fn handler_pw(
+    Extension(bloom): Extension<Arc<EasyBloom>>,
+    Path(pw): Path<String>,
+) -> Json<Value> {
     let mut hasher = Sha1::new();
     hasher.update(pw.as_bytes());
     let hash_raw = &hasher.finalize();
