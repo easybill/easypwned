@@ -31,7 +31,7 @@ fn count_lines(path: &str) -> Result<usize, Error> {
     let reader = BufReader::new(file);
 
     let mut i = 0;
-    for raw_line in reader.lines() {
+    for _raw_line in reader.lines() {
         i = i + 1;
     }
 
@@ -72,7 +72,7 @@ pub fn bloom_create(bloom_file: &str, password_file: &str) -> Result<BloomWithMe
         }
 
         let hash = match line.split_once(":") {
-            Some((hash, often)) => hash,
+            Some((hash, _often)) => hash,
             _ => return Err(anyhow!("invalid hash pattern")),
         };
 

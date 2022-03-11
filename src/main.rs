@@ -29,20 +29,21 @@ pub struct Opt {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
     let opt: Opt = Opt::from_args();
+    tracing_subscriber::fmt::init();
 
     println!("{:?}", opt);
 
     match &opt.create_bloom_file_from_file {
         Some(password_file) => match bloom_create(&opt.bloomfile, password_file.as_str()) {
-            Ok(b) => {
+            Ok(_b) => {
                 println!(
                     "bloom {} created for file {}",
                     &opt.bloomfile,
                     password_file.as_str()
                 );
-                return;
+                return Ok(());
             }
             Err(e) => {
                 println!("could not create bloom: {}", e);
@@ -75,8 +76,6 @@ async fn main() {
         );
     }
 
-    tracing_subscriber::fmt::init();
-
     let bloom_ext = Arc::new(bloom);
 
     let app = Router::new()
@@ -88,8 +87,9 @@ async fn main() {
     println!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
-        .await
-        .unwrap();
+        .await?;
+
+    Ok(())
 }
 
 async fn handler_hash(
