@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
+use std::path::Path;
 use anyhow::{anyhow, Error};
 use bloomfilter::Bloom;
 use serde_derive::{Deserialize, Serialize};
@@ -38,9 +39,9 @@ fn count_lines(path : &str) -> Result<usize, Error> {
     Ok(i)
 }
 
-pub fn bloom_get() -> Result<BloomWithMetadata, Error> {
+pub fn bloom_get(path : &str) -> Result<BloomWithMetadata, Error> {
 
-    let mut file = File::open("easypwned.bloom")?;
+    let mut file = File::open(&path)?;
     let mut buf = vec![];
     file.read_to_end(&mut buf)?;
 
@@ -48,19 +49,22 @@ pub fn bloom_get() -> Result<BloomWithMetadata, Error> {
     Ok(bincode::deserialize::<BloomWithMetadata>(buf.as_slice())?)
 }
 
-pub fn bloom_create() -> Result<BloomWithMetadata, Error> {
+pub fn bloom_create(bloom_file : &str, password_file: &str) -> Result<BloomWithMetadata, Error> {
     // let path = "pwned-passwords-sha1-ordered-by-hash-v8.txt";
-    let path = "pwned-passwords-sha1-ordered-by-hash-v8.txt";
+
+    if Path::new(bloom_file).exists() {
+        return Err(anyhow!("bloomfile already exists"))
+    }
 
     println!("counting lines ...");
-    let number_of_items = count_lines(path)?;
+    let number_of_items = count_lines(password_file)?;
     println!("{} lines ...", number_of_items);
 
     println!("creating bloom");
     let mut bloom = Bloom::new_for_fp_rate(number_of_items, 0.01);
     println!("created bloom");
 
-    let file = File::open(path)?;
+    let file = File::open(password_file)?;
     let reader = BufReader::new(file);
 
     for raw_line in reader.lines() {
@@ -93,7 +97,7 @@ pub fn bloom_create() -> Result<BloomWithMetadata, Error> {
         bloom: bloom.bitmap().to_vec()
     };
 
-    let mut bloomfile = File::create("easypwned.bloom")?;
+    let mut bloomfile = File::create(bloom_file)?;
     bloomfile.write_all(bincode::serialize(&bincode_with_metadata).expect("could not bincode").as_slice())?;
 
     println!("done!");

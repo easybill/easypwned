@@ -7,31 +7,48 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::sync::Arc;
 use axum::extract::{Extension, Path};
 use bloomfilter::Bloom;
 use serde_json::{json, Value};
 use sha1::{Sha1, Digest};
-
+use structopt::StructOpt;
 
 pub mod bloom_create;
+
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "basic")]
+pub struct Opt {
+    /// Files to process
+    #[structopt(long = "bloomfile", default_value = "easypwned.bloom")]
+    bloomfile: String,
+
+    /// Files to process
+    #[structopt(long = "create_bloom_file_from_file")]
+    create_bloom_file_from_file: Option<String>,
+}
 
 #[tokio::main]
 async fn main() {
 
+    let opt : Opt = Opt::from_args();
 
+    println!("{:?}", opt);
 
-    /*
-    let bloom = match bloom_create() {
-        Ok(b) => b,
-        Err(e) => {
-            println!("could not create bloom: {}", e);
-            panic!();
+    match &opt.create_bloom_file_from_file {
+        Some(password_file) => match bloom_create(&opt.bloomfile, password_file.as_str()) {
+            Ok(b) => {},
+            Err(e) => {
+                println!("could not create bloom: {}", e);
+                panic!();
+            },
         },
+        None => {},
     };
-     */
 
-    let bloom = match bloom_get() {
+    let bloom = match bloom_get(&opt.bloomfile) {
         Ok(b) => b,
         Err(e) => {
             println!("could not get bloom {}", e);
