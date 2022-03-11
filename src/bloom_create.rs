@@ -44,7 +44,7 @@ pub fn bloom_create() -> Result<(), Error> {
         bloom.set(hash);
     }
 
-    let mut bloomfile = File::open("easypwned.bloom")?;
+    let mut bloomfile = File::create("easypwned.bloom")?;
     bloomfile.write_all(bloom.bitmap().as_ref())?;
 
     println!("done!");
