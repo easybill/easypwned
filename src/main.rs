@@ -37,7 +37,11 @@ async fn main() {
     match &opt.create_bloom_file_from_file {
         Some(password_file) => match bloom_create(&opt.bloomfile, password_file.as_str()) {
             Ok(b) => {
-                println!("bloom {} created for file {}", &opt.bloomfile, password_file.as_str());
+                println!(
+                    "bloom {} created for file {}",
+                    &opt.bloomfile,
+                    password_file.as_str()
+                );
                 return;
             }
             Err(e) => {
