@@ -15,9 +15,12 @@ pub mod bloom_create;
 async fn main() {
 
 
-    match bloom_create() {
-        Ok(()) => {},
-        Err(e) => println!("could not create bloom: {}", e),
+    let bloom = match bloom_create() {
+        Ok(b) => b,
+        Err(e) => {
+            println!("could not create bloom: {}", e);
+            panic!();
+        },
     };
 
     let bloom = match bloom_get() {
@@ -28,8 +31,11 @@ async fn main() {
         }
     };
 
+    let bloom = bloom.to_bloom();
+
     let checks = vec![
-        "0000000CAEF405439D57847A8657218C618160B2"
+        "0000000CAEF405439D57847A8657218C618160B2",
+        "0000000CAEF405439D57847A8657218C618160BX"
     ];
 
     for check in checks {
