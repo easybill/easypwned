@@ -20,15 +20,11 @@ pub mod bloom_create;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub struct Opt {
-    /// Files to process
     #[structopt(long = "bloomfile", default_value = "easypwned.bloom")]
     bloomfile: String,
-
-    /// Files to process
     #[structopt(long = "create_bloom_file_from_file")]
     create_bloom_file_from_file: Option<String>,
-
-    #[structopt(long = "create_bloom_file_from_file", default_value = "0.0.0.0:3342")]
+    #[structopt(long = "bind", default_value = "0.0.0.0:3342")]
     bind: String,
 }
 
