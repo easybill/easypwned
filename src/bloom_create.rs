@@ -13,8 +13,10 @@ pub struct BloomWithMetadata {
     bloom: Vec<u8>,
 }
 
+pub type EasyBloom = Bloom<Vec<u8>>;
+
 impl BloomWithMetadata {
-    pub fn to_bloom(self) -> Bloom<Vec<u8>> {
+    pub fn to_bloom(self) -> EasyBloom {
         Bloom::from_existing(
             self.bloom.as_slice(),
             self.number_of_bits,

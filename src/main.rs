@@ -1,4 +1,4 @@
-use crate::bloom_create::{bloom_create, bloom_get};
+use crate::bloom_create::{bloom_create, bloom_get, EasyBloom};
 use axum::{
     routing::{get, post},
     http::StatusCode,
@@ -7,7 +7,10 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
-use axum::extract::Extension;
+use std::sync::Arc;
+use axum::extract::{Extension, Path};
+use bloomfilter::Bloom;
+use serde_json::{json, Value};
 
 pub mod bloom_create;
 
@@ -15,6 +18,7 @@ pub mod bloom_create;
 async fn main() {
 
 
+    /*
     let bloom = match bloom_create() {
         Ok(b) => b,
         Err(e) => {
@@ -22,6 +26,7 @@ async fn main() {
             panic!();
         },
     };
+     */
 
     let bloom = match bloom_get() {
         Ok(b) => b,
@@ -42,22 +47,21 @@ async fn main() {
         println!("check: {} -> {:?}", check, bloom.check(&check.as_bytes().to_vec()));
     }
 
-    panic!("ok!");
-
-
     // initialize tracing
     tracing_subscriber::fmt::init();
+
+    let bloom_ext = Arc::new(bloom);
 
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
-        // .layer(Extension())
-        .route("/", get(root));
+        .route("/hash/:hash", get(root))
+        .layer(Extension(bloom_ext));
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    tracing::debug!("listening on {}", addr);
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3342));
+    println!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
@@ -65,6 +69,10 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn root() -> &'static str {
-    "Hello, World!"
+async fn root(Extension(bloom): Extension<Arc<EasyBloom>>, Path(hash): Path<String>) -> Json<Value> {
+    let check = bloom.check(&hash.as_bytes().to_vec());
+    Json(json!({
+        "hash": hash,
+        "secure": !check,
+    }))
 }
