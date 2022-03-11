@@ -11,6 +11,8 @@ use std::sync::Arc;
 use axum::extract::{Extension, Path};
 use bloomfilter::Bloom;
 use serde_json::{json, Value};
+use sha1::{Sha1, Digest};
+
 
 pub mod bloom_create;
 
@@ -56,7 +58,8 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
-        .route("/hash/:hash", get(root))
+        .route("/hash/:hash", get(handler_hash))
+        .route("/pw/:pw", get(handler_pw))
         .layer(Extension(bloom_ext));
 
     // run our app with hyper
@@ -70,9 +73,23 @@ async fn main() {
 }
 
 // basic handler that responds with a static string
-async fn root(Extension(bloom): Extension<Arc<EasyBloom>>, Path(hash): Path<String>) -> Json<Value> {
+async fn handler_hash(Extension(bloom): Extension<Arc<EasyBloom>>, Path(hash): Path<String>) -> Json<Value> {
     let check = bloom.check(&hash.as_bytes().to_vec());
     Json(json!({
+        "hash": hash,
+        "secure": !check,
+    }))
+}
+
+async fn handler_pw(Extension(bloom): Extension<Arc<EasyBloom>>, Path(pw): Path<String>) -> Json<Value> {
+    let mut hasher = Sha1::new();
+    hasher.update(pw.as_bytes());
+    let hash_raw = &hasher.finalize();
+    let hash = base16ct::lower::encode_string(hash_raw).to_uppercase();
+
+    let check = bloom.check(&hash.as_bytes().to_vec());
+    Json(json!({
+        "pw": pw,
         "hash": hash,
         "secure": !check,
     }))
