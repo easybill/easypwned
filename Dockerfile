@@ -7,5 +7,5 @@
 
 FROM ubuntu:20.04
 #COPY --from=compiler /tmp/proj/target/aarch64-unknown-linux-musl/release/easypwned /easypwned
-ADD easypwned /easypwned
+ADD easypwned_$TARGETPLATFORM /easypwned
 RUN ls
