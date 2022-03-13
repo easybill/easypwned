@@ -34,5 +34,5 @@ jobs:
       -
         name: Build
         run: |
-          docker build --platform ${{ matrix.platform }} .
           cp target/${{ matrix.platform }}/release/easypwned easypwned
+          docker build --platform ${{ matrix.platform }} .
