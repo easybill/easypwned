@@ -7,5 +7,10 @@
 
 FROM ubuntu:20.04
 #COPY --from=compiler /tmp/proj/target/aarch64-unknown-linux-musl/release/easypwned /easypwned
-ADD easypwned_$TARGETPLATFORM /easypwned
-RUN ls
+ADD easypwned_* /tmp/*
+RUN case "${TARGETPLATFORM}" in \
+         "linux/amd64")  cp /tmp/easypwned_linux_amd64 /easypwned ;; \
+         "linux/arm64")  cp /tmp/easypwned_linux_arm64 /easypwned  ;; \
+         *) exit 1 ;; \
+    esac; \
+    && rm -rf /tmp/easypwned*
