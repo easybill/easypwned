@@ -13,4 +13,4 @@ RUN case "${TARGETPLATFORM}" in \
          "linux/arm64")  cp /tmp/easypwned_linux_arm64 /easypwned  ;; \
          *) exit 1 ;; \
     esac; \
-    && rm -rf /tmp/easypwned*
+    rm -rf /tmp/easypwned*
