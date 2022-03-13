@@ -31,20 +31,15 @@ jobs:
         id: buildx
         with:
           install: true
-      -
-        name: Build
-        run: |
-          ls target
-          cp target/${{ matrix.target }}/release/easypwned easypwned
-          docker build --platform ${{ matrix.platform }} .
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: timglabisch/easypwned:latest
+      -
+        name: Build
+        run: |
+          ls target
+          cp target/${{ matrix.target }}/release/easypwned easypwned
+          docker build --platform ${{ matrix.platform }} -t timglabisch/easypwned:latest .
+          docker push --platform ${{ matrix.platform }} timglabisch/easypwned:latest
