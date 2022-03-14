@@ -10,6 +10,9 @@ jobs:
     name: Linux Build
     runs-on: ubuntu-latest
     steps:
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -44,10 +47,27 @@ jobs:
       -
         name: Build and push
         run: |
-          ls target
           cp target/x86_64-unknown-linux-musl/release/easypwned easypwned
           docker buildx build --platform linux/amd64 -t timglabisch/easypwned:latest_amd64 --push .
           cp target/aarch64-unknown-linux-musl/release/easypwned easypwned
           docker buildx build --platform linux/arm64 -t timglabisch/easypwned:latest_arm64 --push .
           docker manifest create timglabisch/easypwned:latest timglabisch/easypwned:latest_amd64 timglabisch/easypwned:latest_arm64
           docker manifest push timglabisch/easypwned:latest
+      -
+        name: Build and push release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          docker manifest create timglabisch/easypwned:latest timglabisch/easypwned:latest_amd64 timglabisch/easypwned:latest_arm64
+          docker manifest push timglabisch/easypwned:latest
+      - name: Release Build
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cp target/aarch64-unknown-linux-musl/release/easypwned easypwned_${{ steps.vars.outputs.tag }}_linux_aarch64
+          cp target/x86_64-unknown-linux-musl/release/easypwned easypwned_${{ steps.vars.outputs.tag }}_linux_x86_64
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            easypwned_${{ steps.vars.outputs.tag }}_linux_aarch64
+            easypwned_${{ steps.vars.outputs.tag }}_linux_x86_64
