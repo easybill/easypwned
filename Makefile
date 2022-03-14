@@ -2,8 +2,8 @@ build_bloom:
 	curl https://downloads.pwnedpasswords.com/passwords/pwned-passwords-sha1-ordered-by-hash-v8.7z --output pwned-passwords-sha1-ordered-by-hash-v8.7z
 	7z e pwned-passwords-sha1-ordered-by-hash-v8.7z
 	rm pwned-passwords-sha1-ordered-by-hash-v8.7z
-	cargo build --release -- --create_bloom_file_from_file=pwned-passwords-sha1-ordered-by-hash-v8.txt
-	rm create_bloom_file_from_file=pwned-passwords-sha1-ordered-by-hash-v8.txt
+	cargo run --release -- --create_bloom_file_from_file=pwned-passwords-sha1-ordered-by-hash-v8.txt
+	rm pwned-passwords-sha1-ordered-by-hash-v8.txt
 
 build-easypwned_bloom_001:
 	cp easypwned.bloom .docker/easypwned_bloom_001/easypwned.bloom
