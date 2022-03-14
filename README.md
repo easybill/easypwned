@@ -43,8 +43,8 @@ php example
 
 
 ## using without docker
-You could run easypwned without docker but than you've to build the bloomfilter by yourself.
+You could run easypwned without docker, but than you've to build the bloomfilter by yourself.
 In theorie you must rebuild the bloomfilter everytime you update easypwned because the bloomfilter might change.
-Rebuilding the bloom filter is not big deal but takes a bit of CPU and DISK. Take a look at the Makefiletarget `make build_bloom`.
+Rebuilding the bloom filter is not a big deal, but takes a bit of CPU and DISK. Take a look at the Makefiletarget `make build_bloom`.
 Another benefit of the docker image is, that easypwned updates stays small if the bloomfilter doesn't change.
 You could also get the bloomfilter from the dockerimage, look at the projects `Dockerfile` for an example.
