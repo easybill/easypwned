@@ -50,17 +50,17 @@ jobs:
         name: Build and push
         run: |
           cp target/x86_64-unknown-linux-musl/release/easypwned easypwned
-          docker buildx build --platform linux/amd64 -t timglabisch/easypwned:latest_amd64 --push .
+          docker buildx build --platform linux/amd64 -t easybill/easypwned:latest_amd64 --push .
           cp target/aarch64-unknown-linux-musl/release/easypwned easypwned
-          docker buildx build --platform linux/arm64 -t timglabisch/easypwned:latest_arm64 --push .
-          docker manifest create timglabisch/easypwned:latest timglabisch/easypwned:latest_amd64 timglabisch/easypwned:latest_arm64
-          docker manifest push timglabisch/easypwned:latest
+          docker buildx build --platform linux/arm64 -t easybill/easypwned:latest_arm64 --push .
+          docker manifest create easybill/easypwned:latest easybill/easypwned:latest_amd64 easybill/easypwned:latest_arm64
+          docker manifest push easybill/easypwned:latest
       -
         name: Build and push release
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          docker manifest create timglabisch/easypwned:${{ steps.vars.outputs.tag }} timglabisch/easypwned:latest_amd64 timglabisch/easypwned:latest_arm64
-          docker manifest push timglabisch/easypwned:${{ steps.vars.outputs.tag }}
+          docker manifest create easybill/easypwned:${{ steps.vars.outputs.tag }} easybill/easypwned:latest_amd64 easybill/easypwned:latest_arm64
+          docker manifest push easybill/easypwned:${{ steps.vars.outputs.tag }}
       - name: Release Build
         if: startsWith(github.ref, 'refs/tags/')
         run: |
