@@ -1,5 +1,5 @@
-# easypwned
-Rest API to check if a password is in a data breach. Works offline - everything stays on your machine!
+# easypwned (haveibeenpwned / HIBP)
+Rest API to check if a password is in a data breach. Works offline - everything stays on your machine! Database is included.
 
 ## Example
 The simplest way to run it is using docker:
