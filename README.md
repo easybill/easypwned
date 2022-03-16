@@ -9,7 +9,7 @@ docker run --rm --network=host easybill/easypwned:latest
 curl http://127.0.0.1:3342/pw/[BLANK_PASSWORD]  # use /hash/SHA1 in prod apps (pw/[PW] is for testing).
 curl http://127.0.0.1:3342/hash/0000001C5F765AA063E4F8470451F85F7DB4ED3A # << UPPERCASE(SHA1(PLAINTEXT))
 ```
-The [dockerimage](https://hub.docker.com/repository/docker/easybill/easypwned) comes with a list of compromised passwords in the form of a [bloomfilter](https://en.wikipedia.org/wiki/Bloom_filter) (~ 1GB).
+The [dockerimage](https://hub.docker.com/r/easybill/easypwned) comes with a list of compromised passwords in the form of a [bloomfilter](https://en.wikipedia.org/wiki/Bloom_filter) (~ 1GB).
 
 ## Is it safe?
 Easypwned does not need external network access. passwords and hashes are never leaving your server.
