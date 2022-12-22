@@ -51,6 +51,7 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         None => {}
     };
 
+    println!("reading bloom filter file {}", &opt.bloomfile);
     let bloom = match bloom_get(&opt.bloomfile) {
         Ok(b) => b,
         Err(e) => {
@@ -58,6 +59,8 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
             panic!();
         }
     };
+    println!("finished reading bloom filter file {}", &opt.bloomfile);
+
 
     let bloom = bloom.to_bloom();
 
@@ -83,9 +86,18 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
     let addr = opt.bind.parse::<SocketAddr>().expect("");
     println!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await?;
+    let axum_handle = axum::Server::bind(&addr)
+        .serve(app.into_make_service());
+
+    ::tokio::select! {
+        axum = axum_handle => {
+            axum?;
+            panic!("axum quitted")
+        },
+        _ = ::tokio::signal::ctrl_c() => {
+            println!("Signal ctrl_c, quit.");
+        }
+    };
 
     Ok(())
 }
