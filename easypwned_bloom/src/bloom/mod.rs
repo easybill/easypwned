@@ -26,18 +26,6 @@ impl BloomWithMetadata {
     }
 }
 
-fn count_lines(path: &str) -> Result<usize, Error> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-
-    let mut i = 0;
-    for _raw_line in reader.lines() {
-        i = i + 1;
-    }
-
-    Ok(i)
-}
-
 pub fn bloom_get(path: &str) -> Result<BloomWithMetadata, Error> {
     let mut file = File::open(&path)?;
     let mut buf = vec![];
@@ -53,12 +41,8 @@ pub fn bloom_create(bloom_file: &str, password_file: &str) -> Result<BloomWithMe
         return Err(anyhow!("bloomfile already exists"));
     }
 
-    println!("counting lines ...");
-    let number_of_items = count_lines(password_file)?;
-    println!("{} lines ...", number_of_items);
-
     println!("creating bloom");
-    let mut bloom = Bloom::new_for_fp_rate(number_of_items, 0.01);
+    let mut bloom = Bloom::new_for_fp_rate(700_000_000, 0.01);
     println!("created bloom");
 
     let file = File::open(password_file)?;

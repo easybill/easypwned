@@ -3,4 +3,5 @@
 members = [
     "downloader",
     "easypwned",
+    "easypwned_bloom",
 ]

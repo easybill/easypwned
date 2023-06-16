@@ -4,6 +4,7 @@ use crate::downloader_http::DownloaderHttp;
 
 pub mod download_coordinator;
 pub mod downloader_http;
+pub mod sink;
 
 pub struct DownloadConfig {
     pub number_of_downloader: u32,
@@ -11,7 +12,7 @@ pub struct DownloadConfig {
 
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
+#[structopt()]
 pub struct Opt {
     #[structopt()]
     sink_bloom_file: Option<String>,
