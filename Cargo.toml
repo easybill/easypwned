@@ -21,3 +21,4 @@ base16ct = { version = "0.1", features = ["alloc", "std"]}
 structopt = "0.*"
 byteorder = "1.*"
 hex = "0.4.1"
+reqwest = "0.*"

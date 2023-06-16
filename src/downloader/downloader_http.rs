@@ -1,6 +1,8 @@
+use anyhow::Context;
 use bincode::config::BigEndian;
 use tokio::sync::mpsc::Sender;
 use byteorder::WriteBytesExt;
+use reqwest::Client;
 
 #[derive(Debug)]
 pub struct DownloaderCommanderMsgWorkResult {
@@ -37,6 +39,8 @@ impl DownloaderHttp {
     }
 
     pub async fn run(&mut self) -> Result<(), ()> {
+        let client = reqwest::Client::new();
+
         loop {
 
             let (response_sender, response_recv) = ::tokio::sync::oneshot::channel();
@@ -59,7 +63,15 @@ impl DownloaderHttp {
                 }
             };
 
-            self.do_work(&mut work).await;
+            loop {
+                match self.do_work(&mut work, &client).await {
+                    Ok(_) => break,
+                    Err(e) => {
+                        eprint!("could not fetch work {}, retry...", work.range);
+                        ::tokio::time::sleep(::tokio::time::Duration::from_secs(1)).await;
+                    }
+                }
+            }
         }
     }
 
@@ -69,13 +81,21 @@ impl DownloaderHttp {
         ::hex::encode(&buf[1..])[1..].to_uppercase()
     }
 
-    pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork) {
-        // println!("{}", Self::build_hash(work.range));
+    pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork, client : &Client) -> Result<(), ::anyhow::Error> {
+        let hash = Self::build_hash(work.range);
+
+        let body = reqwest::get(format!("https://api.pwnedpasswords.com/range/{}", hash))
+            .await.context("could not fetch hash")?
+            .bytes()
+            .await.context("could not decode response")?;
+
         self.commander.send(DownloaderCommanderMsgRequest::SendWork(
             DownloaderCommanderMsgWorkResult {
                 range: work.range,
-                bytes: vec![],
+                bytes: body.to_vec(),
             }
-        )).await.expect("could not send work result")
+        )).await.expect("could not send work result");
+
+        Ok(())
     }
 }

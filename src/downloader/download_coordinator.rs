@@ -46,6 +46,9 @@ impl DownloadCoordinator {
                     sender.send(msg_work).expect("could not send work");
                 },
                 DownloaderCommanderMsgRequest::SendWork(w) => {
+
+                    println!("{}", String::from_utf8_lossy(&w.bytes));
+
                     if self.resolved_ranges % 1000 == 0 {
                         println!("{}/{} - {}%", self.resolved_ranges, RANGES, self.resolved_ranges as f64 / RANGES as f64 * 100.0);
                     }
