@@ -1,6 +1,6 @@
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::task::JoinHandle;
-use crate::downloader::downloader_http::{DownloaderCommanderMsgRequest, DownloaderCommanderMsgWork};
+use crate::downloader_http::{DownloaderCommanderMsgRequest, DownloaderCommanderMsgWork};
 
 const RANGES : u32 = 1024*1024;
 

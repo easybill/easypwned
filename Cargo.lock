@@ -247,12 +247,26 @@ dependencies = [
  "bincode",
  "bloomfilter",
  "byteorder",
- "hex",
- "reqwest",
  "serde",
  "serde_derive",
  "serde_json",
  "sha-1",
+ "structopt",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "easypwned_haveibeenpwned_downloader"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bloomfilter",
+ "byteorder",
+ "hex",
+ "reqwest",
+ "serde_derive",
  "structopt",
  "tokio",
  "tracing",

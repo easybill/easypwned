@@ -1,0 +1,18 @@
+[package]
+name = "easypwned_haveibeenpwned_downloader"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bloomfilter = "1.*"
+anyhow = "*"
+tokio = { version = "1.*", features = ["full"]}
+tracing = "0.1.*"
+tracing-subscriber = "0.3.*"
+serde_derive = "1.0.*"
+structopt = "0.*"
+byteorder = "1.*"
+hex = "0.4.1"
+reqwest = "0.*"

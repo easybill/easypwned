@@ -1,5 +1,4 @@
 use anyhow::Context;
-use bincode::config::BigEndian;
 use tokio::sync::mpsc::Sender;
 use byteorder::WriteBytesExt;
 use reqwest::Client;
