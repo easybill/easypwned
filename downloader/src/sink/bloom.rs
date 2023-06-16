@@ -14,7 +14,7 @@ pub struct SinkBloom {
 
 impl SinkBloom {
     pub fn spawn(config : DownloadConfig) -> (JoinHandle<()>, Sender<SinkMsg>) {
-        let (sender, recv) = ::tokio::sync::mpsc::channel(1000);
+        let (sender, recv) = ::tokio::sync::mpsc::channel(50_000);
 
         let jh = ::tokio::spawn(async move {
             (Self { recv, config }).run().await.expect("stdout sink crashed.");

@@ -1,3 +1,4 @@
+use std::time::Duration;
 use anyhow::Context;
 use tokio::sync::mpsc::Sender;
 use byteorder::WriteBytesExt;
@@ -38,7 +39,13 @@ impl DownloaderHttp {
     }
 
     pub async fn run(&mut self) -> Result<(), ()> {
-        let client = reqwest::Client::new();
+        let client = reqwest::ClientBuilder::new()
+            .brotli(true)
+            .gzip(true)
+            .deflate(true)
+            .tcp_keepalive(Duration::from_secs(100))
+            .danger_accept_invalid_certs(true)
+            .build().expect("could not build client");
 
         loop {
 
@@ -83,7 +90,10 @@ impl DownloaderHttp {
     pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork, client : &Client) -> Result<(), ::anyhow::Error> {
         let hash = Self::build_hash(work.range);
 
-        let body = reqwest::get(format!("https://api.pwnedpasswords.com/range/{}", hash))
+
+        let body = client
+            .get(format!("https://api.pwnedpasswords.com/range/{}", hash))
+            .send()
             .await.context("could not fetch hash")?
             .bytes()
             .await.context("could not decode response")?;
