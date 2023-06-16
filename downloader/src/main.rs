@@ -4,7 +4,6 @@ use crate::downloader_http::DownloaderHttp;
 
 pub mod download_coordinator;
 pub mod downloader_http;
-pub mod sink_csv;
 
 pub struct DownloadConfig {
     pub number_of_downloader: u32,
@@ -14,12 +13,10 @@ pub struct DownloadConfig {
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub struct Opt {
-    #[structopt(long = "bloomfile", default_value = "easypwned.bloom")]
-    bloomfile: String,
-    #[structopt(long = "create_bloom_file_from_file")]
-    create_bloom_file_from_file: Option<String>,
-    #[structopt(long = "bind", default_value = "0.0.0.0:3342")]
-    bind: String,
+    #[structopt()]
+    sink_bloom_file: Option<String>,
+    #[structopt()]
+    sink_stdout: Option<String>,
 }
 
 pub async fn download(config: DownloadConfig) {
