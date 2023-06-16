@@ -1,19 +1,23 @@
 use ::tokio::sync::mpsc::{Sender, Receiver};
 use anyhow::anyhow;
 use bloomfilter::Bloom;
+use tokio::io::AsyncWriteExt;
 use tokio::task::JoinHandle;
+use easypwned_bloom::bloom::BloomWithMetadata;
+use crate::DownloadConfig;
 use crate::sink::SinkMsg;
 
-struct SinkBloom {
+pub struct SinkBloom {
+    config : DownloadConfig,
     recv: Receiver<SinkMsg>
 }
 
 impl SinkBloom {
-    pub fn spawn() -> (JoinHandle<()>, Sender<SinkMsg>) {
+    pub fn spawn(config : DownloadConfig) -> (JoinHandle<()>, Sender<SinkMsg>) {
         let (sender, recv) = ::tokio::sync::mpsc::channel(1000);
 
         let jh = ::tokio::spawn(async move {
-            (Self { recv }).run().await.expect("stdout sink crashed.");
+            (Self { recv, config }).run().await.expect("stdout sink crashed.");
         });
 
         (jh, sender)
@@ -27,13 +31,36 @@ impl SinkBloom {
             match self.recv.recv().await {
                 None => continue,
                 Some(s) => match s {
-                    SinkMsg::Finish => return Ok(()),
-                    SinkMsg::Data(data, ok) => {
+                    SinkMsg::Finish => {
+                        self.finish(&mut bloom).await.expect("could not write bloom file");
+                        return Ok(())
+                    },
+                    SinkMsg::Data(data) => {
                         self.process_data(&mut bloom, data).expect("could not parse data");
                     }
                 }
             };
         }
+    }
+
+    pub async fn finish(&self, bloom: &mut Bloom<[u8]>) -> Result<(), ::anyhow::Error> {
+        let bincode_with_metadata = BloomWithMetadata {
+            number_of_bits: bloom.number_of_bits(),
+            number_of_hash_functions: bloom.number_of_hash_functions(),
+            sip_keys: bloom.sip_keys(),
+            bloom: bloom.bitmap().to_vec(),
+        };
+
+        let bloom_file = self.config.opt.sink_bloom_file.as_ref().expect("must be given");
+
+        let mut bloomfile = ::tokio::fs::File::create(bloom_file).await?;
+        bloomfile.write_all(
+            bincode::serialize(&bincode_with_metadata)
+                .expect("could not bincode")
+                .as_slice(),
+        ).await?;
+
+        Ok(())
     }
 
     pub fn process_data(&mut self, bloom: &mut Bloom<[u8]>, data: Vec<u8>) -> Result<(), ::anyhow::Error> {

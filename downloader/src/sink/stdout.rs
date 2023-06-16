@@ -4,7 +4,7 @@ use tokio::io::AsyncWriteExt;
 use tokio::task::JoinHandle;
 use crate::sink::SinkMsg;
 
-struct SinkStdout {
+pub struct SinkStdout {
     recv: Receiver<SinkMsg>
 }
 
@@ -26,7 +26,7 @@ impl SinkStdout {
                 None => continue,
                 Some(s) => match s {
                     SinkMsg::Finish => return Ok(()),
-                    SinkMsg::Data(data, ok) => {
+                    SinkMsg::Data(data) => {
                         ::tokio::io::stdout().write_all(&data).await.expect("could not write to stout");
                     }
                 }

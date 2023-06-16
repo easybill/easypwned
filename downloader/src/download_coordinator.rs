@@ -1,17 +1,19 @@
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::task::JoinHandle;
 use crate::downloader_http::{DownloaderCommanderMsgRequest, DownloaderCommanderMsgWork};
+use crate::sink::SinkMsg;
 
 const RANGES : u32 = 1024*1024;
 
 pub struct DownloadCoordinator {
+    sinks: Vec<Sender<SinkMsg>>,
     recv: Receiver<DownloaderCommanderMsgRequest>,
     current_range: u32,
     resolved_ranges: u32,
 }
 
 impl DownloadCoordinator {
-    pub fn spawn() -> (JoinHandle<()>, Sender<DownloaderCommanderMsgRequest>) {
+    pub fn spawn(sinks : Vec<Sender<SinkMsg>>) -> (JoinHandle<()>, Sender<DownloaderCommanderMsgRequest>) {
 
         let (send, recv) = ::tokio::sync::mpsc::channel(10000);
 
@@ -20,6 +22,7 @@ impl DownloadCoordinator {
                 recv,
                 current_range: 0,
                 resolved_ranges: 0,
+                sinks
             }).run().await;
         });
 
@@ -47,16 +50,24 @@ impl DownloadCoordinator {
                 },
                 DownloaderCommanderMsgRequest::SendWork(w) => {
 
-                    println!("{}", String::from_utf8_lossy(&w.bytes));
+                    // println!("{}", String::from_utf8_lossy(&w.bytes));
+
+                    for sink in &self.sinks {
+                        sink.send(SinkMsg::Data(w.bytes.clone())).await.expect("sink was killed");
+                    }
 
                     if self.resolved_ranges % 1000 == 0 {
-                        println!("{}/{} - {}%", self.resolved_ranges, RANGES, self.resolved_ranges as f64 / RANGES as f64 * 100.0);
+                        eprintln!("{}/{} - {}%", self.resolved_ranges, RANGES, self.resolved_ranges as f64 / RANGES as f64 * 100.0);
                     }
 
                     self.resolved_ranges += 1;
 
                     if self.resolved_ranges == RANGES {
-                        println!("all done");
+
+                        for sink in &self.sinks {
+                            sink.send(SinkMsg::Finish).await.expect("sink was killed");
+                        }
+
                         break;
                     }
                 }
