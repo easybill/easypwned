@@ -6,18 +6,20 @@ pub mod downloader_http;
 pub mod sink_csv;
 
 pub struct DownloadConfig {
-    number_of_downloader: u32,
+    pub number_of_downloader: u32,
 }
 
 pub struct DownloaderHandle {
 
 }
 
-pub async fn download() {
+pub async fn download(config: DownloadConfig) {
 
     let (coordinator_jh, coordinator) = DownloadCoordinator::spawn();
-    DownloaderHttp::spawn(coordinator.clone());
-    DownloaderHttp::spawn(coordinator.clone());
+
+    for i in 1..config.number_of_downloader {
+        DownloaderHttp::spawn(coordinator.clone());
+    }
 
     coordinator_jh.await.expect("could not join");
 

@@ -46,8 +46,11 @@ impl DownloadCoordinator {
                     sender.send(msg_work).expect("could not send work");
                 },
                 DownloaderCommanderMsgRequest::SendWork(w) => {
+                    if self.resolved_ranges % 1000 == 0 {
+                        println!("{}/{} - {}%", self.resolved_ranges, RANGES, self.resolved_ranges as f64 / RANGES as f64 * 100.0);
+                    }
+
                     self.resolved_ranges += 1;
-                    println!("got work #{}!", w.range);
 
                     if self.resolved_ranges == RANGES {
                         println!("all done");

@@ -12,7 +12,7 @@ use std::net::SocketAddr;
 
 use std::sync::Arc;
 use structopt::StructOpt;
-use crate::downloader::download;
+use crate::downloader::{download, DownloadConfig};
 
 pub mod bloom_create;
 pub mod downloader;
@@ -31,7 +31,11 @@ pub struct Opt {
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
-    download().await;
+    let download_config = DownloadConfig {
+        number_of_downloader: 10,
+    };
+
+    download(download_config).await;
 
     return Ok(());
 

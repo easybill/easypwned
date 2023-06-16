@@ -54,7 +54,8 @@ impl DownloaderHttp {
                     }
                 },
                 Err(e) => {
-                    panic!("error: {:?}", e);
+                    // all done. coordinator does not exist anymore.
+                    return Ok(());
                 }
             };
 
@@ -69,6 +70,12 @@ impl DownloaderHttp {
     }
 
     pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork) {
-        println!("{}", Self::build_hash(work.range));
+        // println!("{}", Self::build_hash(work.range));
+        self.commander.send(DownloaderCommanderMsgRequest::SendWork(
+            DownloaderCommanderMsgWorkResult {
+                range: work.range,
+                bytes: vec![],
+            }
+        )).await.expect("could not send work result")
     }
 }
