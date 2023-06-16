@@ -12,8 +12,10 @@ use std::net::SocketAddr;
 
 use std::sync::Arc;
 use structopt::StructOpt;
+use crate::downloader::download;
 
 pub mod bloom_create;
+pub mod downloader;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
@@ -28,6 +30,11 @@ pub struct Opt {
 
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
+
+    download().await;
+
+    return Ok(());
+
     let opt: Opt = Opt::from_args();
     tracing_subscriber::fmt::init();
 
