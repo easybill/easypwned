@@ -35,8 +35,8 @@ impl SinkBloom {
                         self.finish(&mut bloom).await.expect("could not write bloom file");
                         return Ok(())
                     },
-                    SinkMsg::Data(data) => {
-                        self.process_data(&mut bloom, data).expect("could not parse data");
+                    SinkMsg::Data(prefix, data) => {
+                        self.process_data(prefix, &mut bloom, data).expect("could not parse data");
                     }
                 }
             };
@@ -68,7 +68,7 @@ impl SinkBloom {
         Ok(())
     }
 
-    pub fn process_data(&mut self, bloom: &mut Bloom<[u8]>, data: Vec<u8>) -> Result<(), ::anyhow::Error> {
+    pub fn process_data(&mut self, prefix: String, bloom: &mut Bloom<[u8]>, data: Vec<u8>) -> Result<(), ::anyhow::Error> {
         let data_string = match String::from_utf8(data) {
             Ok(v) => v,
             Err(e) => {
@@ -83,11 +83,14 @@ impl SinkBloom {
             }
 
             let hash = match line.split_once(":") {
-                Some((hash, _often)) => hash,
+                Some((hash, _often)) => {
+                    let mut s = prefix.clone();
+                    s.push_str(hash);
+                    s
+                },
                 _ => return Err(anyhow!("invalid hash pattern")),
             };
 
-            println!("bloom hash: \"{}\"", &hash);
             bloom.set(hash.as_bytes());
         }
 

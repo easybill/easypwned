@@ -7,6 +7,7 @@ use reqwest::Client;
 #[derive(Debug)]
 pub struct DownloaderCommanderMsgWorkResult {
     pub range: u32,
+    pub prefix: String,
     pub bytes: Vec<u8>,
 }
 
@@ -43,6 +44,7 @@ impl DownloaderHttp {
             .brotli(true)
             .gzip(true)
             .deflate(true)
+            .timeout(Duration::from_secs(10))
             .tcp_keepalive(Duration::from_secs(100))
             .danger_accept_invalid_certs(true)
             .build().expect("could not build client");
@@ -100,6 +102,7 @@ impl DownloaderHttp {
         match self.commander.send(DownloaderCommanderMsgRequest::SendWork(
             DownloaderCommanderMsgWorkResult {
                 range: work.range,
+                prefix: hash.to_string(),
                 bytes: body.to_vec(),
             }
         )).await {

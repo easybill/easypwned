@@ -29,8 +29,21 @@ impl SinkStdout {
                 None => continue,
                 Some(s) => match s {
                     SinkMsg::Finish => return Ok(()),
-                    SinkMsg::Data(data) => {
-                        stdout.write_all(&data).await.expect("could not write to stout");
+                    SinkMsg::Data(prefix, data) => {
+
+                        let new_data = String::from_utf8(data)
+                            .expect("invalid data")
+                            .lines()
+                            .map(|line| {
+                                let mut l = prefix.clone();
+                                l.push_str(line);
+                                l
+                            })
+                            .collect::<Vec<_>>()
+                            .join("\n")
+                        ;
+
+                        stdout.write_all(new_data.as_bytes()).await.expect("could not write to stout");
                         stdout.write_all("\n".as_bytes()).await.expect("could not write to stout");
                     }
                 }

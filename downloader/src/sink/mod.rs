@@ -3,6 +3,6 @@ pub mod bloom;
 
 #[derive(Debug)]
 pub enum SinkMsg {
-    Data(Vec<u8>),
+    Data(String, Vec<u8>),
     Finish,
 }

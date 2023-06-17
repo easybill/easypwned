@@ -51,7 +51,7 @@ impl DownloadCoordinator {
                 DownloaderCommanderMsgRequest::SendWork(w) => {
 
                     for sink in &self.sinks {
-                        sink.send(SinkMsg::Data(w.bytes.clone())).await.expect("sink was killed");
+                        sink.send(SinkMsg::Data(w.prefix.clone(), w.bytes.clone())).await.expect("sink was killed");
                     }
 
                     if self.resolved_ranges % 1000 == 0 {
