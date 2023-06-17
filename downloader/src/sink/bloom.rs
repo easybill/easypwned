@@ -71,7 +71,7 @@ impl SinkBloom {
     pub fn process_data(&mut self, prefix: String, bloom: &mut Bloom<[u8]>, data: Vec<u8>) -> Result<(), ::anyhow::Error> {
         let data_string = match String::from_utf8(data) {
             Ok(v) => v,
-            Err(e) => {
+            Err(_e) => {
                 return Err(anyhow!("invalid utf8"));
             }
         };

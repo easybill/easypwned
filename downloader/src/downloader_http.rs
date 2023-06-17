@@ -65,7 +65,7 @@ impl DownloaderHttp {
                         return Ok(())
                     }
                 },
-                Err(e) => {
+                Err(_e) => {
                     // all done. coordinator does not exist anymore.
                     return Ok(());
                 }
@@ -74,7 +74,7 @@ impl DownloaderHttp {
             loop {
                 match self.do_work(&mut work, &client).await {
                     Ok(_) => break,
-                    Err(e) => {
+                    Err(_e) => {
                         eprint!("could not fetch work {}, retry...", work.range);
                         ::tokio::time::sleep(::tokio::time::Duration::from_secs(1)).await;
                     }

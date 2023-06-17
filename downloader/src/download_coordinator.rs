@@ -64,7 +64,7 @@ impl DownloadCoordinator {
                         for sink in &self.sinks {
                             match sink.send(SinkMsg::Finish).await {
                                 Ok(_) => {},
-                                Err(e) => {}
+                                Err(_e) => {}
                             };
                         }
                     }

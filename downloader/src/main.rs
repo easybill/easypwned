@@ -1,5 +1,5 @@
 use structopt::StructOpt;
-use tokio::join;
+
 use crate::download_coordinator::DownloadCoordinator;
 use crate::downloader_http::DownloaderHttp;
 use crate::sink::bloom::SinkBloom;
@@ -46,7 +46,7 @@ pub async fn download(config: DownloadConfig) {
         };
 
         match config.opt.sink_bloom_file {
-            Some(ref v) => {
+            Some(ref _v) => {
                 let (jh, sender) = SinkBloom::spawn(config.clone());
                 jhs.push(jh);
                 senders.push(sender);

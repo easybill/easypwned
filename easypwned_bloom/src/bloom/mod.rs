@@ -1,9 +1,9 @@
-use anyhow::{anyhow, Error};
+use anyhow::{Error};
 use bloomfilter::Bloom;
 use serde_derive::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read, Write};
-use std::path::Path;
+use std::io::{Read};
+
 
 #[derive(Serialize, Deserialize)]
 pub struct BloomWithMetadata {
