@@ -18,3 +18,4 @@ sha-1 = "0.*"
 base16ct = { version = "0.1", features = ["alloc", "std"]}
 structopt = "0.*"
 byteorder = "1.*"
+easypwned_bloom = {path = "../easypwned_bloom"}

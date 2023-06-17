@@ -371,6 +371,7 @@ dependencies = [
  "axum",
  "base16ct",
  "byteorder",
+ "easypwned_bloom",
  "serde",
  "serde_derive",
  "serde_json",

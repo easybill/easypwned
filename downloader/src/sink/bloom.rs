@@ -25,7 +25,7 @@ impl SinkBloom {
 
     pub async fn run(&mut self) -> Result<(), ()> {
 
-        let mut bloom : Bloom<[u8]> = Bloom::new_for_fp_rate(700_000_000, 0.01);
+        let mut bloom : Bloom<[u8]> = Bloom::new_for_fp_rate(900_000_000, 0.01);
 
         loop {
             match self.recv.recv().await {
@@ -87,6 +87,7 @@ impl SinkBloom {
                 _ => return Err(anyhow!("invalid hash pattern")),
             };
 
+            println!("bloom hash: \"{}\"", &hash);
             bloom.set(hash.as_bytes());
         }
 

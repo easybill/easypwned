@@ -1,4 +1,3 @@
-use crate::bloom_create::{bloom_create, bloom_get, EasyBloom};
 use axum::extract::{Extension, Path};
 use axum::{
     routing::{get},
@@ -12,16 +11,13 @@ use std::net::SocketAddr;
 
 use std::sync::Arc;
 use structopt::StructOpt;
-
-pub mod bloom_create;
+use easypwned_bloom::bloom::{bloom_get, EasyBloom};
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub struct Opt {
     #[structopt(long = "bloomfile", default_value = "easypwned.bloom")]
     bloomfile: String,
-    #[structopt(long = "create_bloom_file_from_file")]
-    create_bloom_file_from_file: Option<String>,
     #[structopt(long = "bind", default_value = "0.0.0.0:3342")]
     bind: String,
 }
@@ -32,26 +28,6 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
     let opt: Opt = Opt::from_args();
     tracing_subscriber::fmt::init();
 
-    println!("{:?}", opt);
-
-    match &opt.create_bloom_file_from_file {
-        Some(password_file) => match bloom_create(&opt.bloomfile, password_file.as_str()) {
-            Ok(_b) => {
-                println!(
-                    "bloom {} created for file {}",
-                    &opt.bloomfile,
-                    password_file.as_str()
-                );
-                return Ok(());
-            }
-            Err(e) => {
-                println!("could not create bloom: {}", e);
-                panic!();
-            }
-        },
-        None => {}
-    };
-
     println!("reading bloom filter file {}", &opt.bloomfile);
     let bloom = match bloom_get(&opt.bloomfile) {
         Ok(b) => b,
@@ -61,7 +37,6 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         }
     };
     println!("finished reading bloom filter file {}", &opt.bloomfile);
-
 
     let bloom = bloom.to_bloom();
 
