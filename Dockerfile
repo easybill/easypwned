@@ -1,6 +1,7 @@
-FROM easybill/easypwned_bloom_001 AS bloom
+FROM easybill/easypwned_bloom_001:v2 AS bloom
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 COPY --from=bloom /easypwned.bloom /easypwned.bloom
 ADD easypwned /easypwned
+ADD easypwned_haveibeenpwned_downloader /easypwned_haveibeenpwned_downloader
 ENTRYPOINT ["/easypwned"]
