@@ -9,12 +9,12 @@ edition = "2021"
 anyhow = "*"
 axum = "0.6.*"
 tokio = { version = "1.*", features = ["full"]}
-serde = "1.0.*"
-serde_json = "1.0.*"
-serde_derive = "1.0.*"
+serde = "1.*"
+serde_json = "1.*"
+serde_derive = "1.*"
 tracing = "0.1.*"
 tracing-subscriber = "0.3.*"
 sha-1 = "0.*"
-base16ct = { version = "0.1", features = ["alloc", "std"]}
+base16ct = { version = "0.2", features = ["alloc", "std"]}
 structopt = "0.*"
 easypwned_bloom = {path = "../easypwned_bloom"}
