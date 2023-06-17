@@ -21,13 +21,17 @@ impl SinkStdout {
     }
 
     pub async fn run(&mut self) -> Result<(), ()> {
+
+        let mut stdout = ::tokio::io::stdout();
+
         loop {
             match self.recv.recv().await {
                 None => continue,
                 Some(s) => match s {
                     SinkMsg::Finish => return Ok(()),
                     SinkMsg::Data(data) => {
-                        ::tokio::io::stdout().write_all(&data).await.expect("could not write to stout");
+                        stdout.write_all(&data).await.expect("could not write to stout");
+                        stdout.write_all("\n".as_bytes()).await.expect("could not write to stout");
                     }
                 }
             };

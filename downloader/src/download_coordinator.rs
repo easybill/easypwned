@@ -15,7 +15,7 @@ pub struct DownloadCoordinator {
 impl DownloadCoordinator {
     pub fn spawn(sinks : Vec<Sender<SinkMsg>>) -> (JoinHandle<()>, Sender<DownloaderCommanderMsgRequest>) {
 
-        let (send, recv) = ::tokio::sync::mpsc::channel(10000);
+        let (send, recv) = ::tokio::sync::mpsc::channel(10_000);
 
         let jh = ::tokio::spawn(async move {
             (Self {
@@ -50,8 +50,6 @@ impl DownloadCoordinator {
                 },
                 DownloaderCommanderMsgRequest::SendWork(w) => {
 
-                    // println!("{}", String::from_utf8_lossy(&w.bytes));
-
                     for sink in &self.sinks {
                         sink.send(SinkMsg::Data(w.bytes.clone())).await.expect("sink was killed");
                     }
@@ -62,13 +60,13 @@ impl DownloadCoordinator {
 
                     self.resolved_ranges += 1;
 
-                    if self.resolved_ranges == RANGES {
-
+                    if self.resolved_ranges >= RANGES {
                         for sink in &self.sinks {
-                            sink.send(SinkMsg::Finish).await.expect("sink was killed");
+                            match sink.send(SinkMsg::Finish).await {
+                                Ok(_) => {},
+                                Err(e) => {}
+                            };
                         }
-
-                        break;
                     }
                 }
             };

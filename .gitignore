@@ -6,4 +6,5 @@ easypwned.zip
 dist/easypwned_linux_x86_64
 dist/easypwned_osx_x86_64
 .DS_Store
+out.txt
 **/*.bloom

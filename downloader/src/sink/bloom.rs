@@ -44,6 +44,9 @@ impl SinkBloom {
     }
 
     pub async fn finish(&self, bloom: &mut Bloom<[u8]>) -> Result<(), ::anyhow::Error> {
+
+        eprintln!("start writing bloom filter.");
+
         let bincode_with_metadata = BloomWithMetadata {
             number_of_bits: bloom.number_of_bits(),
             number_of_hash_functions: bloom.number_of_hash_functions(),
@@ -59,6 +62,8 @@ impl SinkBloom {
                 .expect("could not bincode")
                 .as_slice(),
         ).await?;
+
+        eprintln!("finished writing bloom filter.");
 
         Ok(())
     }

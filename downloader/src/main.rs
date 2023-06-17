@@ -62,19 +62,18 @@ pub async fn download(config: DownloadConfig) {
         return;
     }
 
-    let (coordinator_jh, coordinator) = DownloadCoordinator::spawn(
+    let (_coordinator_jh, coordinator) = DownloadCoordinator::spawn(
         sinks_senders
     );
 
-    for i in 0..config.number_of_downloader {
+    for _i in 0..config.number_of_downloader {
         DownloaderHttp::spawn(coordinator.clone());
     }
 
     for jh in sinks_jhs {
         jh.await.expect("sink crashed");
+        eprintln!("finish sink")
     }
-
-    coordinator_jh.await.expect("could not join");
 }
 
 #[tokio::main]

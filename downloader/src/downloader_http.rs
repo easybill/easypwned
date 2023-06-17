@@ -51,7 +51,7 @@ impl DownloaderHttp {
 
             let (response_sender, response_recv) = ::tokio::sync::oneshot::channel();
 
-            let msg = self.commander.send(
+            let _msg = self.commander.send(
                 DownloaderCommanderMsgRequest::AskForWork(response_sender)
             ).await;
 
@@ -90,7 +90,6 @@ impl DownloaderHttp {
     pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork, client : &Client) -> Result<(), ::anyhow::Error> {
         let hash = Self::build_hash(work.range);
 
-
         let body = client
             .get(format!("https://api.pwnedpasswords.com/range/{}", hash))
             .send()
@@ -98,12 +97,18 @@ impl DownloaderHttp {
             .bytes()
             .await.context("could not decode response")?;
 
-        self.commander.send(DownloaderCommanderMsgRequest::SendWork(
+        match self.commander.send(DownloaderCommanderMsgRequest::SendWork(
             DownloaderCommanderMsgWorkResult {
                 range: work.range,
                 bytes: body.to_vec(),
             }
-        )).await.expect("could not send work result");
+        )).await {
+            Ok(_) => {},
+            Err(e) => {
+                eprintln!("could not send work result: {:?}", e);
+                panic!("could not send work result");
+            }
+        }
 
         Ok(())
     }
