@@ -87,8 +87,8 @@ jobs:
          path: binaries
      - name: Build and push
        run: |
-         cp /binaries/target/${{ matrix.container.rust_target }}/release/easypwned binary_easypwned
-         cp /binaries/target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader binary_easypwned_haveibeenpwned_downloader
+         cp /binaries/easypwned-${{ matrix.container.rust_target }}/target/${{ matrix.container.rust_target }}/release/easypwned binary_easypwned
+         cp /binaries/easypwned-${{ matrix.container.rust_target }}/target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader binary_easypwned_haveibeenpwned_downloader
          docker buildx build -o type=docker --platform linux/${{ matrix.container.arch }} -t easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }} .
          docker push easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }}
 
