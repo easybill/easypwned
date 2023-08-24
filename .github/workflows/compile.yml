@@ -17,8 +17,7 @@ jobs:
           - { os: 'ubuntu-latest', rust_target: 'x86_64-unknown-linux-musl' }
           - { os: 'macos-latest', rust_target: 'x86_64-apple-darwin' }
           - { os: 'macos-latest', rust_target: 'aarch64-apple-darwin' }
-
-    runs-on: ${{ matrix.platform.os }}
+    runs-on: "${{ matrix.container.os }}"
     steps:
       - name: Set output
         id: vars
@@ -37,13 +36,13 @@ jobs:
       - name: Prepare output artifact (easypwned)
         uses: actions/upload-artifact@v3
         with:
-          name: easypwned-${{ matrix.platform.rust_target }}
-          path: target/${{ matrix.container.rust_target }}/release/easypwned-${{ matrix.platform.rust_target }}
+          name: easypwned-${{ matrix.container.rust_target }}
+          path: target/${{ matrix.container.rust_target }}/release/easypwned-${{ matrix.container.rust_target }}
       - name: Prepare output artifact (easypwned_haveibeenpwned_downloader)
         uses: actions/upload-artifact@v3
         with:
-          name: easypwned_haveibeenpwned_downloader-${{ matrix.platform.rust_target }}
-          path: target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader-${{ matrix.platform.rust_target }}
+          name: easypwned_haveibeenpwned_downloader-${{ matrix.container.rust_target }}
+          path: target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader-${{ matrix.container.rust_target }}
 
   release:
      name: Release
