@@ -100,5 +100,5 @@ jobs:
     steps:
       - name: Build and Push manifest
         run: |
-          docker manifest create easybill/easypwned:${{ steps.vars.outputs.tag }} easybill/easypwned:${{github.ref_name}}_amd64 easybill/easypwned:${{github.ref_name}}_arm64
-          docker manifest push easybill/easypwned:${{ steps.vars.outputs.tag }}
+          docker manifest create easybill/easypwned:${{github.ref_name}} easybill/easypwned:${{github.ref_name}}_amd64 easybill/easypwned:${{github.ref_name}}_arm64
+          docker manifest push easybill/easypwned:${{github.ref_name}}
