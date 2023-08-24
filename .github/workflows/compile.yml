@@ -50,16 +50,12 @@ jobs:
          uses: actions/download-artifact@v3
          with:
            path: binaries
-       - name: list
-         run: |
-           ls binaries
-           ls binaries/easypwned-aarch64-apple-darwin
        - name: Release
          uses: softprops/action-gh-release@v1
          with:
            fail_on_unmatched_files: true
            files: |
-             binaries/*/target/*/release/*
+             binaries/*/*
 
   docker_build:
    name: docker
@@ -88,8 +84,8 @@ jobs:
          path: binaries
      - name: Build and push
        run: |
-         cp /binaries/easypwned-${{ matrix.container.rust_target }}/target/${{ matrix.container.rust_target }}/release/easypwned binary_easypwned
-         cp /binaries/easypwned-${{ matrix.container.rust_target }}/target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader binary_easypwned_haveibeenpwned_downloader
+         cp /binaries/easypwned-${{ matrix.container.rust_target }}/easypwned binary_easypwned
+         cp /binaries/easypwned-${{ matrix.container.rust_target }}/easypwned_haveibeenpwned_downloader binary_easypwned_haveibeenpwned_downloader
          docker buildx build -o type=docker --platform linux/${{ matrix.container.arch }} -t easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }} .
          docker push easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }}
 
