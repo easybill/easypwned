@@ -47,13 +47,13 @@ jobs:
         run: |
           cp target/aarch64-unknown-linux-musl/release/easypwned easypwned
           cp target/aarch64-unknown-linux-musl/release/easypwned_haveibeenpwned_downloader easypwned_haveibeenpwned_downloader
-          docker buildx build --platform linux/amd64 -t easybill/easypwned:${{github.ref_name}}_amd64 .
+          docker buildx build -o type=docker --platform linux/amd64 -t easybill/easypwned:${{github.ref_name}}_amd64 .
           docker push easybill/easypwned:${{github.ref_name}}_amd64
       - name: Build and push arm
         run: |
           cp target/aarch64-unknown-linux-musl/release/easypwned easypwned
           cp target/aarch64-unknown-linux-musl/release/easypwned_haveibeenpwned_downloader easypwned_haveibeenpwned_downloader
-          docker buildx build --platform linux/arm64 -t easybill/easypwned:${{github.ref_name}}_arm64 .
+          docker buildx build -o type=docker --platform linux/arm64 -t easybill/easypwned:${{github.ref_name}}_arm64 .
           docker push easybill/easypwned:${{github.ref_name}}_arm64
       - name: Build and Push manifest
         if: startsWith(github.ref, 'refs/tags/')
