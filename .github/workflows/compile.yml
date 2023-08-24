@@ -37,12 +37,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: easypwned-${{ matrix.container.rust_target }}
-          path: target/${{ matrix.container.rust_target }}/release/easypwned-${{ matrix.container.rust_target }}
-      - name: Prepare output artifact (easypwned_haveibeenpwned_downloader)
-        uses: actions/upload-artifact@v3
-        with:
-          name: easypwned_haveibeenpwned_downloader-${{ matrix.container.rust_target }}
-          path: target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader-${{ matrix.container.rust_target }}
+          path: | 
+            target/${{ matrix.container.rust_target }}/release/easypwned
+            target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader
 
   release:
      name: Release
@@ -86,11 +83,12 @@ jobs:
      - name: download artifacts
        uses: actions/download-artifact@v3
        with:
+         name: easypwned-${{ matrix.container.rust_target }}
          path: binaries
      - name: Build and push
        run: |
-         cp /binaries/easypwned-${{ matrix.container.rust_target }} binary_easypwned
-         cp /binaries/easypwned_haveibeenpwned_downloader-${{ matrix.container.rust_target }} binary_easypwned_haveibeenpwned_downloader
+         cp /binaries/target/${{ matrix.container.rust_target }}/release/easypwned binary_easypwned
+         cp /binaries/target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader binary_easypwned_haveibeenpwned_downloader
          docker buildx build -o type=docker --platform linux/${{ matrix.container.arch }} -t easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }} .
          docker push easybill/easypwned:${{github.ref_name}}_${{ matrix.container.arch }}
 
