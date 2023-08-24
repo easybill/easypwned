@@ -50,15 +50,16 @@ jobs:
          uses: actions/download-artifact@v3
          with:
            path: binaries
-       - name: install packages
+       - name: list
          run: |
-           ls .
+           ls binaries
+           ls binaries/easypwned-${{ matrix.container.rust_target }}
        - name: Release
          uses: softprops/action-gh-release@v1
          with:
            fail_on_unmatched_files: true
            files: |
-             binaries/*/*
+             binaries/*/target/*/release/*
 
   docker_build:
    name: docker
