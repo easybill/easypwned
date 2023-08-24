@@ -1,8 +1,5 @@
 use axum::extract::{Extension, Path};
-use axum::{
-    routing::{get},
-    Json, Router,
-};
+use axum::{routing::{get}, Json, Router, extract};
 
 
 use serde_json::{json, Value};
@@ -10,7 +7,10 @@ use sha1::{Digest, Sha1};
 use std::net::SocketAddr;
 
 use std::sync::Arc;
+use axum::routing::post;
+use serde_derive::Deserialize;
 use structopt::StructOpt;
+use tokio::signal::unix::{signal, SignalKind};
 use easypwned_bloom::bloom::{bloom_get, EasyBloom};
 
 #[derive(StructOpt, Debug)]
@@ -54,10 +54,10 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
     }
 
     let bloom_ext = Arc::new(bloom);
-
     let app = Router::new()
         .route("/hash/:hash", get(handler_hash))
         .route("/pw/:pw", get(handler_pw))
+        .route("/check", post(handler_check))
         .layer(Extension(bloom_ext));
 
     let addr = opt.bind.parse::<SocketAddr>().expect("");
@@ -65,11 +65,20 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
     let axum_handle = axum::Server::bind(&addr)
         .serve(app.into_make_service());
 
+    let mut sig_quit = signal(SignalKind::quit())?;
+    let mut sig_term = signal(SignalKind::terminate())?;
+
     ::tokio::select! {
         axum = axum_handle => {
             axum?;
             panic!("axum quitted")
         },
+        _ = sig_quit.recv() => {
+            println!("Signal quit, quit.");
+        },
+        _ = sig_term.recv() => {
+            println!("Signal term, quit.");
+        }
         _ = ::tokio::signal::ctrl_c() => {
             println!("Signal ctrl_c, quit.");
         }
@@ -85,6 +94,22 @@ async fn handler_hash(
     let check = bloom.check(&hash.as_bytes().to_vec());
     Json(json!({
         "hash": hash,
+        "secure": !check,
+    }))
+}
+
+#[derive(Deserialize)]
+struct CheckRequestBody {
+    hash: String,
+}
+
+async fn handler_check(
+    Extension(bloom): Extension<Arc<EasyBloom>>,
+    extract::Json(payload): extract::Json<CheckRequestBody>,
+) -> Json<Value> {
+    let check = bloom.check(&payload.hash.as_bytes().to_vec());
+    Json(json!({
+        "hash": payload.hash,
         "secure": !check,
     }))
 }
