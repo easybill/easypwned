@@ -26,7 +26,6 @@ pub struct Opt {
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
     let opt: Opt = Opt::from_args();
-    tracing_subscriber::fmt::init();
 
     println!("reading bloom filter file {}", &opt.bloomfile);
     let bloom = match bloom_get(&opt.bloomfile) {

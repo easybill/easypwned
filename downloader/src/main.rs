@@ -23,8 +23,6 @@ pub struct Opt {
     sink_bloom_file: Option<String>,
     #[structopt(long)]
     sink_stdout: bool,
-    #[structopt(long)]
-    debug_console_subscriber: bool,
     #[structopt(long = "parallel", default_value="60")]
     parallel: u32,
 }
@@ -80,10 +78,6 @@ pub async fn download(config: DownloadConfig) {
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
     let opt: Opt = Opt::from_args();
-
-    if opt.debug_console_subscriber {
-        console_subscriber::init();
-    }
 
     let download_config = DownloadConfig {
         number_of_downloader: opt.parallel,
