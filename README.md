@@ -56,7 +56,6 @@ We build Binaries for Linux ([arm64](https://github.com/easybill/easypwned/relea
 )) and OSX ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_aarch64-apple-darwin), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_x86_64-apple-darwin)).
 If you use the Binaries you need to provide the bloom filter. You could extract it from the docker container or build it on your own.
 
-
 ## Download the haveibeenpwned / HIBP Database (PwnedPasswordsDownloader)
 
 We also provide a downloader for the haveibeenpwned / HIBP Database, you can build the downloader on your own or use out pre build binaries for Linux ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_aarch64-unknown-linux-musl), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_x86_64-unknown-linux-musl
@@ -79,4 +78,13 @@ Download as Text File:
 Download and Create Bloom File
 ```bash
 ./easypwned_haveibeenpwned_downloader_aarch64-apple-darwin --sink-bloom-file=easypwned.bloom
+```
+
+## How fast it is?
+i don't exacly know, but it's very fast. I just did some very basic benchmarks on my m1 studio + apache benchmark.
+It is probably much faster in real world scenarios.
+```
+Requests per second:    24505.60 [#/sec] (mean)
+Time per request:       4.081 [ms] (mean)
+Time per request:       0.041 [ms] (mean, across all concurrent requests)
 ```
