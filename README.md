@@ -9,7 +9,6 @@ The simplest way to run it is using docker:
 docker run --rm --network=host easybill/easypwned:v0.0.26
 curl http://127.0.0.1:3342/pw/[BLANK_PASSWORD]  # use /hash/SHA1 in prod apps (pw/[PW] is for testing).
 curl http://127.0.0.1:3342/hash/0000001C5F765AA063E4F8470451F85F7DB4ED3A # << UPPERCASE(SHA1(PLAINTEXT)),
-curl -X POST http://127.0.0.1:3342/check -H 'Content-Type: application/json' -d '{"hash": "0000001C5F765AA063E4F8470451F85F7DB4ED3X"}' # << in prod prefer POST, some tracing/logging/debug libs are collecting url parameters
 ```
 The [dockerimage](https://hub.docker.com/r/easybill/easypwned) comes with a list of compromised passwords in the form of a [bloomfilter](https://en.wikipedia.org/wiki/Bloom_filter) (~ 1GB).
 
@@ -36,6 +35,16 @@ You'll get a `"secure":true` if the password is not breached.
 curl http://127.0.0.1:3342/hash/0000000CAEF405439D57847A8657218C618160B2
 {"hash":"A94A8FE5CCB19BA61C4C0873D391E987982FBBD3","pw":"test","secure":false}
 ```
+
+### /check (POST)
+In prod prefer POST, some tracing / logging / debug libs like to collecting url parameters.
+
+```
+curl -X POST http://127.0.0.1:3342/check -H 'Content-Type: application/json' -d '{"hash": "0000001C5F765AA063E4F8470451F85F7DB4ED3X"}'
+
+```
+
+
 
 php example
 ```php
