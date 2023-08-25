@@ -1,11 +1,12 @@
 # easypwned (haveibeenpwned / HIBP)
 Rest API to check if a password is in a data breach. Works offline - everything stays on your machine! Database is included.
+We also provide a downloader for the hibp database.
 
 ## Example
 The simplest way to run it is using docker:
 
 ```bash
-docker run --rm --network=host easybill/easypwned:latest
+docker run --rm --network=host easybill/easypwned:v0.0.26
 curl http://127.0.0.1:3342/pw/[BLANK_PASSWORD]  # use /hash/SHA1 in prod apps (pw/[PW] is for testing).
 curl http://127.0.0.1:3342/hash/0000001C5F765AA063E4F8470451F85F7DB4ED3A # << UPPERCASE(SHA1(PLAINTEXT))
 ```
@@ -41,8 +42,31 @@ php example
 ```
 
 ## Using without docker
-While we recommend using the Docker image, you can run Easypwned without using Docker as well. To do so, you have to build the bloomfilter yourself.
-In theory you must rebuild the bloomfilter everytime you update easypwned because the bloomfilter might change.
-Rebuilding the bloom filter is not a big deal, but takes a bit of CPU and DISK. Take a look at the Makefile target `build_bloom`.
-Another benefit of the Docker image is, that easypwned updates stay small if the bloomfilter doesn't change.
-You could also get the bloomfilter from the dockerimage. Look at the project's `Dockerfile` for an example.
+We build Binaries for Linux ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_aarch64-unknown-linux-musl), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_x86_64-unknown-linux-musl
+)) and OSX ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_aarch64-apple-darwin), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_x86_64-apple-darwin)).
+If you use the Binaries you need to provide the bloom filter. You could extract it from the docker container or build it on your own.
+
+
+## Download the haveibeenpwned / HIBP Database (PwnedPasswordsDownloader)
+
+We also provide a downloader for the haveibeenpwned / HIBP Database, you can build the downloader on your own or use out pre build binaries for Linux ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_aarch64-unknown-linux-musl), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_x86_64-unknown-linux-musl
+)) and OSX ([arm64](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_aarch64-apple-darwin), [x86](https://github.com/easybill/easypwned/releases/latest/download/easypwned_haveibeenpwned_downloader_x86_64-apple-darwin))
+
+there is also an [official downloader (PwnedPasswordsDownloader)](https://github.com/HaveIBeenPwned/PwnedPasswordsDownloader) but it is written in c# has no pre build binaries and no support for building bloom filters on the fly.
+
+If you download the hibp database multiple times your file would end up with different file hashes.
+The order of the data will be different. the downloader needs do around a million http requests and the order of the incoming data
+is directly piped to the output. You can adjust the number of the parallel requests using the argument `--parallel`. the default value is 60.
+
+Download as Text File:
+```bash
+./easypwned_haveibeenpwned_downloader_aarch64-apple-darwin --sink-stdout
+
+// you may want to pipe it to a file ...
+./easypwned_haveibeenpwned_downloader_aarch64-apple-darwin --sink-stdout > hibp.txt
+```
+
+Download and Create Bloom File
+```bash
+./easypwned_haveibeenpwned_downloader_aarch64-apple-darwin --sink-bloom-file=easypwned.bloom
+```
