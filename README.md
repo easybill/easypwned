@@ -1,6 +1,6 @@
 # easypwned (haveibeenpwned / HIBP)
 Rest API to check if a password is in a data breach. Works offline - everything stays on your machine! Database is included.
-We also provide a downloader for the hibp database.
+We also provide a [downloader for the hibp database](https://github.com/easybill/easypwned#download-the-haveibeenpwned--hibp-database-pwnedpasswordsdownloader).
 
 ## Example
 The simplest way to run it is using docker:
