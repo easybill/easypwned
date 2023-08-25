@@ -80,7 +80,7 @@ Download and Create Bloom File
 ./easypwned_haveibeenpwned_downloader_aarch64-apple-darwin --sink-bloom-file=easypwned.bloom
 ```
 
-## How fast it is?
+## How fast is it?
 i don't exacly know, but it's very fast. I just did some very basic benchmarks on my m1 studio + apache benchmark.
 It is probably much faster in real world scenarios.
 ```
