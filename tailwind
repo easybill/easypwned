@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#!/bin/bash
+
+./yarn && ./yarn tailwind -i ./easypwned/index.css -c tailwind.config.js -o public/tailwind.css --minify "${@:1}"

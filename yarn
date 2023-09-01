@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#!/bin/bash
+
+docker run -it -v $(pwd):/app --workdir /app node:18 yarn "${@:1}"

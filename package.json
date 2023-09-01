@@ -1,0 +1,10 @@
+{
+  "name": "easypwned",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Christian Rodriguez Benthake <git@cben.co>",
+  "license": "proprietary",
+  "devDependencies": {
+    "tailwindcss": "^3.3.1"
+  }
+}

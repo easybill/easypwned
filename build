@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#!/bin/bash
+
+dx build --features web --release --bin easypwned

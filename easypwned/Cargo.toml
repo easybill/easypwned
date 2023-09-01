@@ -2,18 +2,30 @@
 name = "easypwned"
 version = "0.1.0"
 edition = "2021"
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "*"
-axum = "0.6.*"
-tokio = { version = "1.*", features = ["full"]}
+axum = { version = "0.6.*", optional = true }
+tokio = { version = "1.*", features = ["full"], optional = true}
 serde = "1.*"
 serde_json = "1.*"
 serde_derive = "1.*"
 tracing = "0.1.*"
-sha-1 = "0.*"
-base16ct = { version = "0.2", features = ["alloc", "std"]}
-structopt = "0.*"
-easypwned_bloom = {path = "../easypwned_bloom"}
+log = { version = "0.4", features = ["std"] }
+sha-1 = { version = "0.*", optional = true }
+base16ct = { version = "0.2", features = ["alloc", "std"], optional = true}
+structopt = { version = "0.*", optional = true }
+easypwned_bloom = {path = "../easypwned_bloom", optional = true}
+dioxus-web = { version = "0.4.0", features = ["hydrate"], optional = true }
+dioxus = { version = "0.4.0" }
+dioxus-fullstack = { version = "0.4.1" }
+reqwest = { version = "0.11.20", features = ["json", "serde_json"] }
+dioxus-logger = { version = "0.4.1", optional = true }
+
+[features]
+default = []
+ssr = ["tokio", "axum", "sha-1", "base16ct", "structopt", "easypwned_bloom", "dioxus-fullstack/axum"]
+web = ["dioxus-web", "dioxus-logger"]
