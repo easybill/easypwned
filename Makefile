@@ -6,6 +6,6 @@ run_release:
 
 build-easypwned_bloom:
 	cp easypwned.bloom .docker/easypwned_bloom_001/easypwned.bloom
-	cd .docker/easypwned_bloom_001 && docker build -t easybill/easypwned_bloom_001:v2 .
+	cd .docker/easypwned_bloom_001 && docker build -t easybill/easypwned_bloom_001:v3 .
 	rm .docker/easypwned_bloom_001/easypwned.bloom
-	docker push easybill/easypwned_bloom_001:v2
+	docker push easybill/easypwned_bloom_001:v3

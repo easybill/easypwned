@@ -1,4 +1,4 @@
-FROM easybill/easypwned_bloom_001:v2 AS bloom
+FROM easybill/easypwned_bloom_001:v3 AS bloom
 
 FROM ubuntu:23.04
 COPY --from=bloom /easypwned.bloom /easypwned.bloom
