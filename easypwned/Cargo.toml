@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "*"
-axum = "0.6.*"
+axum = "0.7.*"
 tokio = { version = "1.*", features = ["full"]}
 serde = "1.*"
 serde_json = "1.*"
