@@ -1,3 +1,4 @@
+use std::future::IntoFuture;
 use axum::extract::{Extension, Path};
 use axum::{routing::{get}, Json, Router, extract};
 
@@ -10,6 +11,7 @@ use std::sync::Arc;
 use axum::routing::post;
 use serde_derive::Deserialize;
 use structopt::StructOpt;
+use tokio::net::TcpListener;
 use tokio::signal::unix::{signal, SignalKind};
 use easypwned_bloom::bloom::{bloom_get, EasyBloom};
 
@@ -61,14 +63,15 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
     let addr = opt.bind.parse::<SocketAddr>().expect("");
     println!("listening on {}", addr);
-    let axum_handle = axum::Server::bind(&addr)
-        .serve(app.into_make_service());
+
+    let listener = TcpListener::bind(&addr).await?;
+    let axum_handle = axum::serve(listener, app);
 
     let mut sig_quit = signal(SignalKind::quit())?;
     let mut sig_term = signal(SignalKind::terminate())?;
 
     ::tokio::select! {
-        axum = axum_handle => {
+        axum = axum_handle.into_future() => {
             axum?;
             panic!("axum quitted")
         },
@@ -81,7 +84,7 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         _ = ::tokio::signal::ctrl_c() => {
             println!("Signal ctrl_c, quit.");
         }
-    };
+    }
 
     Ok(())
 }
