@@ -1,4 +1,4 @@
-use structopt::StructOpt;
+use clap::Parser;
 
 use crate::download_coordinator::DownloadCoordinator;
 use crate::downloader_http::DownloaderHttp;
@@ -16,14 +16,13 @@ pub struct DownloadConfig {
 }
 
 
-#[derive(StructOpt, Debug, Clone)]
-#[structopt()]
+#[derive(Parser, Debug, Clone)]
 pub struct Opt {
-    #[structopt(long = "sink-bloom-file")]
+    #[arg(long = "sink-bloom-file")]
     sink_bloom_file: Option<String>,
-    #[structopt(long)]
+    #[arg(long = "sink-stdout", default_value_t = false)]
     sink_stdout: bool,
-    #[structopt(long = "parallel", default_value="60")]
+    #[arg(long = "parallel", default_value = "60")]
     parallel: u32,
 }
 
@@ -77,7 +76,7 @@ pub async fn download(config: DownloadConfig) {
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
-    let opt: Opt = Opt::from_args();
+    let opt: Opt = Opt::parse();
 
     let download_config = DownloadConfig {
         number_of_downloader: opt.parallel,

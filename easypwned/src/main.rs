@@ -9,25 +9,24 @@ use std::net::SocketAddr;
 
 use std::sync::Arc;
 use axum::routing::post;
+use clap::Parser;
 use serde_derive::Deserialize;
-use structopt::StructOpt;
 use tokio::net::TcpListener;
 use tokio::signal::unix::{signal, SignalKind};
 use easypwned_bloom::bloom::{bloom_get, EasyBloom};
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
+#[derive(Parser, Debug)]
 pub struct Opt {
-    #[structopt(long = "bloomfile", default_value = "easypwned.bloom")]
+    #[arg(long = "bloomfile", default_value = "easypwned.bloom")]
     bloomfile: String,
-    #[structopt(long = "bind", default_value = "0.0.0.0:3342")]
+    #[arg(long = "bind", default_value = "0.0.0.0:3342")]
     bind: String,
 }
 
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 
-    let opt: Opt = Opt::from_args();
+    let opt: Opt = Opt::parse();
 
     println!("reading bloom filter file {}", &opt.bloomfile);
     let bloom = match bloom_get(&opt.bloomfile) {
