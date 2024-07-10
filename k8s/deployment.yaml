@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: easypwned
+
+spec:
+  selector:
+    matchLabels:
+      app: easypwned
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: easypwned
+    spec:
+      containers:
+        - name: easypwned
+          image: "easybill/easypwned:v0.0.27"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3342
+          readinessProbe:
+            httpGet:
+              path: /pw/test
+              port: 3342
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /pw/test
+              port: 3342
+            periodSeconds: 10
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault

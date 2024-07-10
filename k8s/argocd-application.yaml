@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: easypwned
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/easybill/easypwned.git
+    path: k8s
+    targetRevision: add-k8s-deployment-for-rke2
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: easypwned
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+    automated:
+      selfHeal: true
+      prune: true

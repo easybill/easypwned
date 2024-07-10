@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: easypwned
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - host: easypwned.k8s.int.easybill.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: easypwned
+                port:
+                  number: 3342
