@@ -25,7 +25,7 @@ impl SinkBloom {
 
     pub async fn run(&mut self) -> Result<(), ()> {
 
-        let mut bloom : Bloom<[u8]> = Bloom::new_for_fp_rate(1_000_000_000, 0.01);
+        let mut bloom : Bloom<[u8]> = Bloom::new_for_fp_rate(1_010_000_000, 0.01);
 
         loop {
             match self.recv.recv().await {
