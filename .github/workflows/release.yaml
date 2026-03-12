@@ -3,31 +3,25 @@ on:
     tags:
       - 'v*.*.*'
 
-name: compile
+name: release
 
 jobs:
-
   build:
     name: Build
     strategy:
       fail-fast: true
       matrix:
         container:
-          - { os: 'ubuntu-latest', rust_target: 'aarch64-unknown-linux-musl' }
-          - { os: 'ubuntu-latest', rust_target: 'x86_64-unknown-linux-musl' }
+          - { os: 'ubuntu-24.04', rust_target: 'aarch64-unknown-linux-musl' }
+          - { os: 'ubuntu-24.04', rust_target: 'x86_64-unknown-linux-musl' }
           - { os: 'macos-latest', rust_target: 'x86_64-apple-darwin' }
           - { os: 'macos-latest', rust_target: 'aarch64-apple-darwin' }
     runs-on: "${{ matrix.container.os }}"
     steps:
-      - name: Set output
-        id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - uses: actions/checkout@v6
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: "${{ matrix.container.rust_target }}"
-          override: true
+          targets: "${{ matrix.container.rust_target }}"
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
@@ -41,17 +35,17 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: easypwned-${{ matrix.container.rust_target }}
-          path: | 
+          path: |
             target/${{ matrix.container.rust_target }}/release/easypwned_${{ matrix.container.rust_target }}
             target/${{ matrix.container.rust_target }}/release/easypwned_haveibeenpwned_downloader_${{ matrix.container.rust_target }}
 
   release:
      name: Release
-     runs-on: ubuntu-latest
+     runs-on: ubuntu-24.04
      needs: ["build"]
      steps:
        - name: download artifacts
-         uses: actions/download-artifact@v4.1.7
+         uses: actions/download-artifact@v4
          with:
            path: binaries
        - name: Release
@@ -63,14 +57,14 @@ jobs:
 
   docker_build:
    name: docker
-   runs-on: ubuntu-latest
+   runs-on: ubuntu-24.04
    needs: ["build"]
    strategy:
      fail-fast: true
      matrix:
        container:
-         - { os: 'ubuntu-latest', arch: 'arm64', rust_target: 'aarch64-unknown-linux-musl' }
-         - { os: 'ubuntu-latest', arch: 'amd64', rust_target: 'x86_64-unknown-linux-musl' }
+         - { os: 'ubuntu-24.04', arch: 'arm64', rust_target: 'aarch64-unknown-linux-musl' }
+         - { os: 'ubuntu-24.04', arch: 'amd64', rust_target: 'x86_64-unknown-linux-musl' }
    steps:
      - uses: actions/checkout@v6
      - uses: docker/setup-buildx-action@v4
@@ -83,7 +77,7 @@ jobs:
          username: ${{ secrets.DOCKERHUB_USERNAME }}
          password: ${{ secrets.DOCKERHUB_TOKEN }}
      - name: download artifacts
-       uses: actions/download-artifact@v4.1.7
+       uses: actions/download-artifact@v4
        with:
          path: binaries
      - name: Build and push
@@ -97,7 +91,7 @@ jobs:
 
   docker_manifest:
     name: Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: ["docker_build"]
     steps:
       - name: Login to DockerHub
