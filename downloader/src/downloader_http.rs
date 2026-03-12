@@ -105,6 +105,8 @@ impl DownloaderHttp {
             .send()
             .await
             .context("could not fetch hash")?
+            .error_for_status()
+            .context("non-success status code")?
             .bytes()
             .await
             .context("could not decode response")?;
