@@ -1,18 +1,19 @@
 use std::future::IntoFuture;
-use axum::extract::{Extension, Path};
-use axum::{routing::{get}, Json, Router, extract};
-
-
-use serde_json::{json, Value};
-use sha1::{Digest, Sha1};
 use std::net::SocketAddr;
-
 use std::sync::Arc;
-use axum::routing::post;
+
+use axum::extract::{Path, State};
+use axum::{
+    routing::{get, post},
+    Json, Router,
+};
 use clap::Parser;
 use serde_derive::Deserialize;
+use serde_json::{json, Value};
+use sha1::{Digest, Sha1};
 use tokio::net::TcpListener;
 use tokio::signal::unix::{signal, SignalKind};
+
 use easypwned_bloom::bloom::{bloom_get, EasyBloom};
 
 #[derive(Parser, Debug)]
@@ -25,7 +26,6 @@ pub struct Opt {
 
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
-
     let opt: Opt = Opt::parse();
 
     println!("reading bloom filter file {}", &opt.bloomfile);
@@ -37,8 +37,6 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         }
     };
     println!("finished reading bloom filter file {}", &opt.bloomfile);
-
-    let bloom = bloom.to_bloom();
 
     let checks = vec![
         "0000000CAEF405439D57847A8657218C618160B2",
@@ -53,12 +51,12 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         );
     }
 
-    let bloom_ext = Arc::new(bloom);
+    let bloom_state = Arc::new(bloom);
     let app = Router::new()
-        .route("/hash/:hash", get(handler_hash))
-        .route("/pw/:pw", get(handler_pw))
+        .route("/hash/{hash}", get(handler_hash))
+        .route("/pw/{pw}", get(handler_pw))
         .route("/check", post(handler_check))
-        .layer(Extension(bloom_ext));
+        .with_state(bloom_state);
 
     let addr = opt.bind.parse::<SocketAddr>().expect("");
     println!("listening on {}", addr);
@@ -89,7 +87,7 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
 }
 
 async fn handler_hash(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
+    State(bloom): State<Arc<EasyBloom>>,
     Path(hash): Path<String>,
 ) -> Json<Value> {
     let check = bloom.check(&hash.as_bytes().to_vec());
@@ -105,8 +103,8 @@ struct CheckRequestBody {
 }
 
 async fn handler_check(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
-    extract::Json(payload): extract::Json<CheckRequestBody>,
+    State(bloom): State<Arc<EasyBloom>>,
+    Json(payload): Json<CheckRequestBody>,
 ) -> Json<Value> {
     let check = bloom.check(&payload.hash.as_bytes().to_vec());
     Json(json!({
@@ -115,10 +113,7 @@ async fn handler_check(
     }))
 }
 
-async fn handler_pw(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
-    Path(pw): Path<String>,
-) -> Json<Value> {
+async fn handler_pw(State(bloom): State<Arc<EasyBloom>>, Path(pw): Path<String>) -> Json<Value> {
     let mut hasher = Sha1::new();
     hasher.update(pw.as_bytes());
     let hash_raw = &hasher.finalize();

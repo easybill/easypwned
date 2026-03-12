@@ -1,5 +1,5 @@
-pub mod stdout;
 pub mod bloom;
+pub mod stdout;
 
 #[derive(Debug)]
 pub enum SinkMsg {
