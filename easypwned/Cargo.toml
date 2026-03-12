@@ -14,3 +14,9 @@ sha-1 = "0.10"
 base16ct = { version = "1", features = ["alloc"] }
 clap = { version = "4", features = ["derive"] }
 easypwned_bloom = {path = "../easypwned_bloom"}
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+http = "1"
+bloomfilter = "3"

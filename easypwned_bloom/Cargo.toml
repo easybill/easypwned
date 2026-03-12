@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 bloomfilter = "3"
 anyhow = "1"
+
+[dev-dependencies]
+tempfile = "3"
