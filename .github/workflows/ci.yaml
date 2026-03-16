@@ -23,11 +23,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: "${{ matrix.container.rust_target }}"
-      - uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: "--release --target ${{ matrix.container.rust_target }}"
+      - run: cargo install cross --locked
+      - run: cross build --release --target ${{ matrix.container.rust_target }}
 
   test:
     name: Test
