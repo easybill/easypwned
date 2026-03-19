@@ -1,19 +1,12 @@
 use std::future::IntoFuture;
-use axum::extract::{Extension, Path};
-use axum::{routing::{get}, Json, Router, extract};
-
-
-use serde_json::{json, Value};
-use sha1::{Digest, Sha1};
 use std::net::SocketAddr;
-
 use std::sync::Arc;
-use axum::routing::post;
+
 use clap::Parser;
-use serde_derive::Deserialize;
 use tokio::net::TcpListener;
 use tokio::signal::unix::{signal, SignalKind};
-use easypwned_bloom::bloom::{bloom_get, EasyBloom};
+
+use easypwned_bloom::bloom::bloom_get;
 
 #[derive(Parser, Debug)]
 pub struct Opt {
@@ -25,7 +18,6 @@ pub struct Opt {
 
 #[tokio::main]
 async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
-
     let opt: Opt = Opt::parse();
 
     println!("reading bloom filter file {}", &opt.bloomfile);
@@ -37,8 +29,6 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         }
     };
     println!("finished reading bloom filter file {}", &opt.bloomfile);
-
-    let bloom = bloom.to_bloom();
 
     let checks = vec![
         "0000000CAEF405439D57847A8657218C618160B2",
@@ -53,12 +43,8 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
         );
     }
 
-    let bloom_ext = Arc::new(bloom);
-    let app = Router::new()
-        .route("/hash/:hash", get(handler_hash))
-        .route("/pw/:pw", get(handler_pw))
-        .route("/check", post(handler_check))
-        .layer(Extension(bloom_ext));
+    let bloom_state = Arc::new(bloom);
+    let app = easypwned::create_router(bloom_state);
 
     let addr = opt.bind.parse::<SocketAddr>().expect("");
     println!("listening on {}", addr);
@@ -86,48 +72,4 @@ async fn main() -> ::anyhow::Result<(), ::anyhow::Error> {
     }
 
     Ok(())
-}
-
-async fn handler_hash(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
-    Path(hash): Path<String>,
-) -> Json<Value> {
-    let check = bloom.check(&hash.as_bytes().to_vec());
-    Json(json!({
-        "hash": hash,
-        "secure": !check,
-    }))
-}
-
-#[derive(Deserialize)]
-struct CheckRequestBody {
-    hash: String,
-}
-
-async fn handler_check(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
-    extract::Json(payload): extract::Json<CheckRequestBody>,
-) -> Json<Value> {
-    let check = bloom.check(&payload.hash.as_bytes().to_vec());
-    Json(json!({
-        "hash": payload.hash,
-        "secure": !check,
-    }))
-}
-
-async fn handler_pw(
-    Extension(bloom): Extension<Arc<EasyBloom>>,
-    Path(pw): Path<String>,
-) -> Json<Value> {
-    let mut hasher = Sha1::new();
-    hasher.update(pw.as_bytes());
-    let hash_raw = &hasher.finalize();
-    let hash = base16ct::lower::encode_string(hash_raw).to_uppercase();
-
-    let check = bloom.check(&hash.as_bytes().to_vec());
-    Json(json!({
-        "pw": pw,
-        "hash": hash,
-        "secure": !check,
-    }))
 }

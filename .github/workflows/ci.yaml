@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+name: ci
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - { os: 'ubuntu-24.04', rust_target: 'aarch64-unknown-linux-musl' }
+          - { os: 'ubuntu-24.04', rust_target: 'x86_64-unknown-linux-musl' }
+          - { os: 'macos-latest', rust_target: 'x86_64-apple-darwin' }
+          - { os: 'macos-latest', rust_target: 'aarch64-apple-darwin' }
+    runs-on: "${{ matrix.container.os }}"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "${{ matrix.container.rust_target }}"
+      - run: cargo install cross --locked
+      - run: cross build --release --target ${{ matrix.container.rust_target }}
+
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test

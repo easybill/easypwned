@@ -1,8 +1,8 @@
-use std::time::Duration;
 use anyhow::Context;
-use tokio::sync::mpsc::Sender;
 use byteorder::WriteBytesExt;
 use reqwest::Client;
+use std::time::Duration;
+use tokio::sync::mpsc::Sender;
 
 #[derive(Debug)]
 pub struct DownloaderCommanderMsgWorkResult {
@@ -13,17 +13,17 @@ pub struct DownloaderCommanderMsgWorkResult {
 
 #[derive(Debug)]
 pub struct DownloaderCommanderMsgWork {
-    pub range : u32,
+    pub range: u32,
 }
 
 #[derive(Debug)]
 pub enum DownloaderCommanderMsgResponse {
-    AskForWork(Option<DownloaderCommanderMsgWork>)
+    AskForWork(Option<DownloaderCommanderMsgWork>),
 }
 #[derive(Debug)]
 pub enum DownloaderCommanderMsgRequest {
     AskForWork(::tokio::sync::oneshot::Sender<Option<DownloaderCommanderMsgWork>>),
-    SendWork(DownloaderCommanderMsgWorkResult)
+    SendWork(DownloaderCommanderMsgWorkResult),
 }
 
 #[derive(Debug)]
@@ -32,10 +32,12 @@ pub struct DownloaderHttp {
 }
 
 impl DownloaderHttp {
-
     pub fn spawn(commander: Sender<DownloaderCommanderMsgRequest>) {
         ::tokio::spawn(async move {
-            (Self {commander}).run().await.expect("downloader crashed");
+            (Self { commander })
+                .run()
+                .await
+                .expect("downloader crashed");
         });
     }
 
@@ -47,22 +49,23 @@ impl DownloaderHttp {
             .timeout(Duration::from_secs(10))
             .tcp_keepalive(Duration::from_secs(100))
             .danger_accept_invalid_certs(true)
-            .build().expect("could not build client");
+            .build()
+            .expect("could not build client");
 
         loop {
-
             let (response_sender, response_recv) = ::tokio::sync::oneshot::channel();
 
-            let _msg = self.commander.send(
-                DownloaderCommanderMsgRequest::AskForWork(response_sender)
-            ).await;
+            let _msg = self
+                .commander
+                .send(DownloaderCommanderMsgRequest::AskForWork(response_sender))
+                .await;
 
             let mut work = match response_recv.await {
                 Ok(v) => match v {
                     Some(v) => v,
                     None => {
                         // all done.
-                        return Ok(())
+                        return Ok(());
                     }
                 },
                 Err(_e) => {
@@ -83,30 +86,43 @@ impl DownloaderHttp {
         }
     }
 
-    pub fn build_hash(id : u32) -> String {
+    pub fn build_hash(id: u32) -> String {
         let mut buf = vec![];
-        buf.write_u32::<::byteorder::BigEndian>(id).expect("invalid write u32");
+        buf.write_u32::<::byteorder::BigEndian>(id)
+            .expect("invalid write u32");
         ::hex::encode(&buf[1..])[1..].to_uppercase()
     }
 
-    pub async fn do_work(&mut self, work : &mut DownloaderCommanderMsgWork, client : &Client) -> Result<(), ::anyhow::Error> {
+    pub async fn do_work(
+        &mut self,
+        work: &mut DownloaderCommanderMsgWork,
+        client: &Client,
+    ) -> Result<(), ::anyhow::Error> {
         let hash = Self::build_hash(work.range);
 
         let body = client
             .get(format!("https://api.pwnedpasswords.com/range/{}", hash))
             .send()
-            .await.context("could not fetch hash")?
+            .await
+            .context("could not fetch hash")?
+            .error_for_status()
+            .context("non-success status code")?
             .bytes()
-            .await.context("could not decode response")?;
+            .await
+            .context("could not decode response")?;
 
-        match self.commander.send(DownloaderCommanderMsgRequest::SendWork(
-            DownloaderCommanderMsgWorkResult {
-                range: work.range,
-                prefix: hash.to_string(),
-                bytes: body.to_vec(),
-            }
-        )).await {
-            Ok(_) => {},
+        match self
+            .commander
+            .send(DownloaderCommanderMsgRequest::SendWork(
+                DownloaderCommanderMsgWorkResult {
+                    range: work.range,
+                    prefix: hash.to_string(),
+                    bytes: body.to_vec(),
+                },
+            ))
+            .await
+        {
+            Ok(_) => {}
             Err(e) => {
                 eprintln!("could not send work result: {:?}", e);
                 panic!("could not send work result");
