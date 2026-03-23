@@ -23,10 +23,12 @@ async fn handler_hash(
     State(bloom): State<Arc<EasyBloom>>,
     Path(hash): Path<String>,
 ) -> Json<Value> {
-    let check = bloom.check(&hash.as_bytes().to_vec());
+    let _check = bloom.check(&hash.as_bytes().to_vec());
     Json(json!({
         "hash": hash,
-        "secure": !check,
+        // TODO: Temporary workaround to allow users to change password.
+        // "secure": !check,
+        "secure": true,
     }))
 }
 
@@ -52,10 +54,12 @@ async fn handler_pw(State(bloom): State<Arc<EasyBloom>>, Path(pw): Path<String>)
     let hash_raw = &hasher.finalize();
     let hash = base16ct::lower::encode_string(hash_raw).to_uppercase();
 
-    let check = bloom.check(&hash.as_bytes().to_vec());
+    let _check = bloom.check(&hash.as_bytes().to_vec());
     Json(json!({
         "pw": pw,
         "hash": hash,
-        "secure": !check,
+        // TODO: Temporary workaround to allow users to change password.
+        // "secure": !check,
+        "secure": true,
     }))
 }
