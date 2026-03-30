@@ -10,4 +10,5 @@ tokio = { version = "1", features = ["full"]}
 clap = { version = "4", features = ["derive"] }
 byteorder = "1"
 hex = "0.4"
+rand_aes = "0.6"
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "gzip", "brotli", "deflate"] }

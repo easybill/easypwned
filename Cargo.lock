@@ -469,6 +469,7 @@ dependencies = [
  "byteorder",
  "clap",
  "hex",
+ "rand_aes",
  "reqwest",
  "tokio",
 ]
@@ -1208,6 +1209,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6db2770f06117d490610c7488547d543617b21bfa07796d7a12f6f1bd53850d1"
 dependencies = [
  "rand_chacha",
+ "rand_core",
+]
+
+[[package]]
+name = "rand_aes"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea2a5761d4b040674107330783e395c27d881d173eba8c34274c7f79372b85f2"
+dependencies = [
+ "getrandom 0.3.4",
  "rand_core",
 ]
 
