@@ -1,12 +1,13 @@
 use crate::sink::SinkMsg;
 use crate::DownloadConfig;
-use ::tokio::sync::mpsc::{Receiver, Sender};
+use std::thread::yield_now;
+use std::time::Instant;
+
 use anyhow::anyhow;
 use bloomfilter::Bloom;
 use rand_aes::{Aes256Ctr128, Random};
-use std::thread::yield_now;
-use std::time::Instant;
 use tokio::io::AsyncWriteExt;
+use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::task::JoinHandle;
 
 const BLOOM_CAPACITY: usize = 2_100_000_000;
