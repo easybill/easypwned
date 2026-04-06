@@ -1214,9 +1214,9 @@ dependencies = [
 
 [[package]]
 name = "rand_aes"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea2a5761d4b040674107330783e395c27d881d173eba8c34274c7f79372b85f2"
+checksum = "d72c1e7901923d8b22697058ff6917e56fefedbf7820720bfdb058e91b4fd2b1"
 dependencies = [
  "getrandom 0.3.4",
  "rand_core",
