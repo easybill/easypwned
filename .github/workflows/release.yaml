@@ -18,7 +18,7 @@ jobs:
           - { os: 'macos-latest', rust_target: 'aarch64-apple-darwin' }
     runs-on: "${{ matrix.container.os }}"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: "${{ matrix.container.rust_target }}"
@@ -63,7 +63,7 @@ jobs:
          - { os: 'ubuntu-24.04', arch: 'arm64', rust_target: 'aarch64-unknown-linux-musl' }
          - { os: 'ubuntu-24.04', arch: 'amd64', rust_target: 'x86_64-unknown-linux-musl' }
    steps:
-     - uses: actions/checkout@v6
+     - uses: actions/checkout@v7
      - uses: docker/setup-buildx-action@v4
        id: buildx
        with:
