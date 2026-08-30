@@ -19,7 +19,7 @@ jobs:
           - { os: 'macos-latest', rust_target: 'aarch64-apple-darwin' }
     runs-on: "${{ matrix.container.os }}"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: "${{ matrix.container.rust_target }}"
@@ -30,6 +30,6 @@ jobs:
     name: Test
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
